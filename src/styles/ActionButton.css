@@ -1,0 +1,65 @@
+/* src/Components/ui/ActionButton.css */
+
+.action-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  transition: transform 0.2s, background-color 0.2s !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.action-button:focus {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(0, 123, 255, 0.5) !important;
+}
+
+.action-button:active {
+  transform: scale(0.95) !important;
+}
+
+.action-button .p-button-icon {
+  font-size: 0.875rem !important;
+}
+
+/* Estilos responsivos */
+@media screen and (max-width: 768px) {
+  .action-button {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    margin: 0.125rem !important;
+  }
+
+  .action-button .p-button-icon {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Estilos para dispositivos muy pequeños */
+@media screen and (max-width: 480px) {
+  .action-button {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+
+  /* Ajustar tooltips en móviles */
+  .p-tooltip {
+    max-width: 200px !important;
+  }
+}
+
+/* Agrupación de botones en vista responsive */
+.action-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+/* Permitir que los botones se expandan correctamente en vista de stack */
+.p-datatable-tbody[data-pc-section="grid"]>tr[data-pc-section="gridrow"]>td[data-pc-section="gridcell"]:last-child .action-button-group {
+  width: 100%;
+  margin-top: 0.5rem;
+}

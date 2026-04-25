@@ -1,0 +1,313 @@
+:root{
+  background-color: rgb(247, 244, 244);
+}
+
+/* 🎨 Estilos institucionales BORAN S.A.C. */
+
+/* Fuente principal y color base */
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Títulos principales de cada módulo */
+h1,
+h2 {
+  color: #222;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+/* Subtítulos o descripciones */
+p,
+span {
+  color: #666;
+}
+
+/* Contenedor general de páginas (como la de Inventario) */
+.page-container {
+  background: #fff;
+  padding: 2rem;
+  margin: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Botón principal azul */
+.p-button {
+  background-color: #0066cc;
+  border: none;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+
+.p-button:hover {
+  background-color: #0056b3;
+}
+
+/* Botón secundario (outlined) */
+.p-button-outlined {
+  color: #0066cc;
+  border: 1px solid #0066cc;
+  background: transparent;
+}
+
+.p-button-outlined:hover {
+  background-color: #e8f1ff;
+}
+
+/* Etiquetas de estado */
+.p-tag-success {
+  background-color: #2ecc71 !important;
+  color: #fff !important;
+}
+
+.p-tag-danger {
+  background-color: #e74c3c !important;
+  color: #fff !important;
+}
+
+/* Tabla general */
+.p-datatable {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  font-size: 15px;
+}
+
+.p-datatable-thead > tr > th {
+  background-color: #0066cc;
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+}
+
+.p-datatable-tbody > tr > td {
+  padding: 1rem;
+}
+
+/* Modal */
+.p-dialog .p-dialog-header {
+  background-color: #0066cc;
+  color: white;
+  font-weight: 600;
+}
+
+.p-dialog .p-dialog-content {
+  background-color: #fff;
+}
+
+.p-dialog .p-dialog-footer {
+  padding: 1rem;
+  background-color: #f4f6f8;
+}
+
+
+.nosotros-page {
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  color: #333;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+/* ===== Encabezado ===== */
+.nosotros-page .header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.nosotros-page .header img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.nosotros-page .header .title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #004c97; /* Azul institucional BORAN */
+  transition: color 0.3s ease;
+}
+
+.nosotros-page .header .title:hover {
+  color: #0074d9;
+}
+
+/* ===== Secciones ===== */
+.nosotros-page .section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #004c97;
+  margin-bottom: 0.75rem;
+}
+
+.nosotros-page .lead {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #444;
+}
+
+/* ===== Tarjetas (Card) ===== */
+.nosotros-page .p-card {
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  padding: 1.25rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nosotros-page .p-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== Íconos de secciones ===== */
+.nosotros-page .with-icon i {
+  color: #004c97;
+  font-size: 1.2rem;
+  vertical-align: middle;
+}
+
+/* ===== Frase institucional ===== */
+.nosotros-page .quote-card {
+  text-align: center;
+  background-color: #004c97;
+  color: #fff;
+  border-radius: 10px;
+  padding: 1.5rem;
+  font-size: 1.2rem;
+  font-style: italic;
+  letter-spacing: 0.5px;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nosotros-page .quote-card:hover {
+  background-color: #005bb5;
+  transform: scale(1.02);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== Información de contacto ===== */
+.nosotros-page .contact-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 0.5rem;
+}
+
+.nosotros-page .contact-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  color: #444;
+  transition: transform 0.25s ease;
+}
+
+.nosotros-page .contact-list li:hover {
+  transform: translateX(4px);
+}
+
+.nosotros-page .contact-list i {
+  color: #004c97;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.nosotros-page .contact-list li:hover i {
+  color: #0074d9;
+  transform: scale(1.2);
+}
+
+/* ===== Responsividad ===== */
+@media (max-width: 768px) {
+  .nosotros-page .header .title {
+    font-size: 1.5rem;
+  }
+
+  .nosotros-page .p-card {
+    padding: 1rem;
+  }
+
+  .nosotros-page .section-title {
+    font-size: 1.1rem;
+  }
+
+  .nosotros-page .quote-card {
+    font-size: 1rem;
+  }
+}
+
+.hero-img {
+  width: 100%;
+  max-width: 450px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin: 0 auto;
+  display: block;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* === Frase institucional === */
+/* === Frase institucional (Confianza) === */
+.quote-card {
+  background-color: #005bbb;
+  color: #ffffff;
+  text-align: center;
+  border-radius: 12px;
+  padding: 2rem 1rem;
+  border: none;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Contenido interno */
+.quote-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.img-confianza {
+  width: 100%;
+  max-width: 380px; /* 🔹 Aumentado desde 300px → más grande */
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25); /* sombra elegante */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.img-confianza:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+}
+
+/* Texto debajo */
+.quote {
+  font-size: 1.25rem;
+  font-style: italic;
+  color: #f5f7fa;
+  margin-top: 1rem;
+  letter-spacing: 0.4px;
+  text-align: center;
+}
+
+
