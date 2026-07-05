@@ -1,40 +1,47 @@
 import { useAuth } from "@/services/auth/authContext";
-import { Column } from "primereact/column";
 import { useEffect, useState } from "react";
 import ActionButton from "@/components/common/ActionButton";
-import CompactTable from "@/components/common/CompactTable";
+import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import Container from "@/components/layout/Container";
 import Header from "@/components/layout/Header";
 import Section from "@/components/layout/Section";
 import CreateOrEditWorker from "@/components/workers/createWorker";
-import { useToast } from "@/context/ToastContext";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export default function Workers() {
   const { http } = useAuth();
-  const { showToast } = useToast();
 
   const [workers, setWorkers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [reload, setReload] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
   const [editWorker, setEditWorker] = useState(null);
+  const [workerToDelete, setWorkerToDelete] = useState(null);
 
   const getWorkers = async () => {
+    setLoading(true);
     try {
       const response = await http.get("employees");
       setWorkers(response.data.data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const deleteWorker = async (id) => {
+  const confirmDeleteWorker = async () => {
+    if (!workerToDelete) return;
     try {
-      const response = await http.delete(`employees/${id}`);
-      setReload(!reload);
-      showToast("success", "Éxito", response.data.message);
+      await http.delete(`employees/${workerToDelete.id}`);
+      setReload((r) => !r);
     } catch (err) {
-      showToast("error", "Error", "No se pudo eliminar el trabajador.");
+      // El interceptor de axios ya muestra el toast de error.
+      console.error("Error eliminando colaborador:", err);
+    } finally {
+      setWorkerToDelete(null);
     }
   };
 
@@ -42,23 +49,52 @@ export default function Workers() {
     getWorkers();
   }, [reload]);
 
-  const Actions = ({ rowData }) => (
-    <div className="flex justify-content-start gap-2">
-      <ActionButton
-        icon="pi-pencil"
-        color="warning"
-        onClick={() => {
-          setEditWorker(rowData);
-          setIsOpen(true);
-        }}
-      />
-      <ActionButton
-        icon="pi-trash"
-        color="danger"
-        onClick={() => deleteWorker(rowData.id)}
-      />
-    </div>
-  );
+  const columns = [
+    {
+      id: "nombre",
+      accessorFn: (r) => r.person?.nombres ?? "",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+      cell: ({ row }) => (
+        <span className="font-medium text-foreground">{row.original.person?.nombres}</span>
+      ),
+    },
+    {
+      accessorKey: "horario_laboral",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Horario laboral" />
+      ),
+      cell: ({ row }) => (
+        <span className="text-foreground">{row.original.horario_laboral}</span>
+      ),
+    },
+    {
+      accessorKey: "sueldo",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Sueldo" />,
+      cell: ({ row }) => <span className="font-spec">S/. {row.original.sueldo}</span>,
+    },
+    {
+      id: "acciones",
+      header: () => <span className="sr-only">Acciones</span>,
+      enableSorting: false,
+      cell: ({ row }) => (
+        <div className="flex justify-start gap-2">
+          <ActionButton
+            icon="pi-pencil"
+            color="warning"
+            onClick={() => {
+              setEditWorker(row.original);
+              setIsOpen(true);
+            }}
+          />
+          <ActionButton
+            icon="pi-trash"
+            color="danger"
+            onClick={() => setWorkerToDelete(row.original)}
+          />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <Container>
@@ -66,7 +102,7 @@ export default function Workers() {
         title="Colaboradores"
         subtitle="A continuación, se visualizará los colaboradores registrados en el sistema."
       />
-      <Section className="flex justify-content-end align-items-center my-3">
+      <Section className="flex justify-end items-center my-3">
         <ActionButton
           icon="pi-plus"
           tooltip="Crear trabajador"
@@ -77,12 +113,14 @@ export default function Workers() {
         />
       </Section>
 
-      <CompactTable value={workers}>
-        <Column header="Nombre" field="person.nombres" />
-        <Column header="Horario laboral" field="horario_laboral" />
-        <Column header="Sueldo" body={(rowData) => `S/. ${rowData.sueldo}`} />
-        <Column header="Acciones" body={(rowData) => <Actions rowData={rowData} />} />
-      </CompactTable>
+      <DataTable
+        columns={columns}
+        data={workers}
+        loading={loading}
+        onRefresh={getWorkers}
+        searchPlaceholder="Buscar colaborador..."
+        emptyMessage="No hay colaboradores registrados"
+      />
 
       <CreateOrEditWorker
         isOpen={isOpen}
@@ -90,6 +128,23 @@ export default function Workers() {
         reload={reload}
         setReload={setReload}
         editData={editWorker}
+      />
+
+      <ConfirmDialog
+        open={!!workerToDelete}
+        onOpenChange={(o) => !o && setWorkerToDelete(null)}
+        title="Eliminar colaborador"
+        description={
+          <>
+            ¿Seguro que deseas eliminar a{" "}
+            <span className="font-semibold text-foreground">
+              “{workerToDelete?.person?.nombres}”
+            </span>
+            ? Esta acción no se puede deshacer.
+          </>
+        }
+        confirmLabel="Sí, eliminar"
+        onConfirm={confirmDeleteWorker}
       />
     </Container>
   );
