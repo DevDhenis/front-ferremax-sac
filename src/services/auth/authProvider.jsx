@@ -31,7 +31,9 @@ const AuthProvider = ({ children }) => {
 
   http.interceptors.response.use(
     (response) => {
-      if (response.data?.success && response.data?.message) {
+      // `skipToast: true` en la config permite que el componente maneje su
+      // propio toast (evita duplicados).
+      if (!response.config?.skipToast && response.data?.success && response.data?.message) {
         const method = response.config.method?.toUpperCase();
         if (["POST", "PUT", "DELETE"].includes(method)) {
           showSuccess("Éxito", response.data.message);
@@ -40,17 +42,19 @@ const AuthProvider = ({ children }) => {
       return response;
     },
     (error) => {
-      if (error.response?.data) {
-        const { message, errors } = error.response.data;
+      if (!error.config?.skipToast) {
+        if (error.response?.data) {
+          const { message, errors } = error.response.data;
 
-        let detail = "";
-        if (errors && Array.isArray(errors)) {
-          detail = errors.map((e) => e.error).join("\n");
+          let detail = "";
+          if (errors && Array.isArray(errors)) {
+            detail = errors.map((e) => e.error).join("\n");
+          }
+
+          showError(message || "Error en la operación", detail);
+        } else {
+          showError("Error de conexión", "No se pudo conectar con el servidor");
         }
-
-        showError(message || "Error en la operación", detail);
-      } else {
-        showError("Error de conexión", "No se pudo conectar con el servidor");
       }
 
       return Promise.reject(error);
