@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Shield, Settings, CircleCheck, Users, Lock, MapPin, Phone, Mail, Clock } from "lucide-react";
 import "./nosotros.css";
 import heroImg from "../../assets/images/presentacionimg.png";
 import confianzaImg from "../../assets/images/confianzaimg.png";
@@ -89,14 +90,14 @@ export default function NosotrosPage() {
 
                     <div className="valores-grid">
                         {[
-                            ["pi pi-shield", "Confianza"],
-                            ["pi pi-cog", "Innovación"],
-                            ["pi pi-check-circle", "Calidad"],
-                            ["pi pi-users", "Compromiso"],
-                            ["pi pi-lock", "Seguridad"],
-                        ].map(([icon, label], idx) => (
+                            [Shield, "Confianza"],
+                            [Settings, "Innovación"],
+                            [CircleCheck, "Calidad"],
+                            [Users, "Compromiso"],
+                            [Lock, "Seguridad"],
+                        ].map(([Icon, label], idx) => (
                             <div key={idx} className="valor-card">
-                                <i className={icon}></i>
+                                <Icon className="size-8 text-primary mb-2 mx-auto block" />
                                 <span>{label}</span>
                             </div>
                         ))}
@@ -160,25 +161,25 @@ export default function NosotrosPage() {
                     <div className="contact-grid">
                         <div className="contact-info">
                             <div className="info-card">
-                                <i className="pi pi-map-marker"></i>
+                                <MapPin className="size-6 text-primary mb-1" />
                                 <h4>Dirección</h4>
                                 <p>Av. Los Constructores 245 – Chiclayo, Perú</p>
                             </div>
 
                             <div className="info-card">
-                                <i className="pi pi-phone"></i>
+                                <Phone className="size-6 text-primary mb-1" />
                                 <h4>Teléfono</h4>
                                 <p>(074) 456789</p>
                             </div>
 
                             <div className="info-card">
-                                <i className="pi pi-envelope"></i>
+                                <Mail className="size-6 text-primary mb-1" />
                                 <h4>Correo</h4>
                                 <p>boransac2@gmail.com</p>
                             </div>
 
                             <div className="info-card">
-                                <i className="pi pi-clock"></i>
+                                <Clock className="size-6 text-primary mb-1" />
                                 <h4>Horario</h4>
                                 <p>Lunes a sábado, 8:00 a.m. – 6:00 p.m.</p>
                             </div>

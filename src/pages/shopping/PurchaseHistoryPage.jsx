@@ -1,12 +1,33 @@
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useMySales } from "@/hooks/useMySales";
-import { ProgressSpinner } from "primereact/progressspinner";
-import { Tag } from "primereact/tag";
-import { Avatar } from "primereact/avatar";
 import Header from "@/components/layout/Header";
 import Container from "@/components/layout/Container";
 import PurchaseHistory from "../../assets/images/purchase-history.png";
 import DetailPurchaseModal from "@/components/shopping/DetailPurchaseModal";
+import { Avatar } from "@/components/ui/avatar";
+import StatusBadge from "@/components/common/StatusBadge";
+
+const STATUS = {
+  pendiente_envio: { label: "Pendiente de envío", tone: "warning" },
+  en_preparacion: { label: "En preparación", tone: "muted" },
+  en_camino: { label: "En camino", tone: "primary" },
+  entregado: { label: "Entregado", tone: "success" },
+  cancelado: { label: "Cancelado", tone: "danger" },
+};
+const getStatus = (s) => STATUS[s] || { label: s, tone: "muted" };
+const money = (v) => `S/ ${Number(v || 0).toFixed(2)}`;
+
+function MetaBlock({ label, children }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        {label}
+      </span>
+      {children}
+    </div>
+  );
+}
 
 export default function PurchaseHistoryPage() {
   const { loading, handleGetMySales } = useMySales();
@@ -20,20 +41,8 @@ export default function PurchaseHistoryPage() {
     cargar();
   }, []);
 
-  const formatStatus = (status) => {
-    const map = {
-      pendiente_envio: { label: "Pendiente de envío", severity: "warning" },
-      en_preparacion: { label: "En preparación", severity: "info" },
-      en_camino: { label: "En camino", severity: "info" },
-      entregado: { label: "Entregado", severity: "success" },
-      cancelado: { label: "Cancelado", severity: "danger" },
-    };
-    return map[status] || { label: status, severity: null };
-  };
-
   const formatDate = (dateString) => {
     const utcDate = new Date(dateString + " UTC");
-
     return utcDate.toLocaleString("es-PE", {
       timeZone: "America/Lima",
       year: "numeric",
@@ -44,23 +53,18 @@ export default function PurchaseHistoryPage() {
     });
   };
 
-  const formatMoney = (v) => `S/ ${Number(v || 0).toFixed(2)}`;
-
-  // const itemsCount = (c) =>
-  //   c.items?.reduce((acc, it) => acc + Number(it.quantity || 0), 0) || 0;
-
-  const itemsCount = (c) => c.items?.length || 0;
-
   if (loading) {
     return (
       <Container>
-        <div className="flex flex-column align-items-center justify-content-center py-6">
-          <ProgressSpinner />
-          <p className="mt-2 text-700">Cargando historial de compras...</p>
+        <div className="flex flex-col items-center justify-center py-16">
+          <Loader2 className="size-8 animate-spin text-primary mb-3" />
+          <p className="text-sm text-muted-foreground">Cargando historial de compras…</p>
         </div>
       </Container>
     );
   }
+
+  const totalGastado = compras.reduce((acc, c) => acc + Number(c.total || 0), 0);
 
   return (
     <Container>
@@ -69,141 +73,132 @@ export default function PurchaseHistoryPage() {
         subtitle="Consulta el detalle de tus compras realizadas en la tienda."
       />
 
-      <div className="grid mt-3">
-        {/* Columna principal: lista de compras */}
-        <div className="col-12 lg:col-9 flex flex-column gap-4">
-          {compras.map((c) => {
-            const st = formatStatus(c.status);
-            const totalItems = itemsCount(c);
-            const primerItem = c.items?.[0];
-            const pago = c.payments?.[0];
+      <div className="grid grid-cols-12 gap-6 mt-6">
+        {/* Lista de compras */}
+        <div className="col-span-12 lg:col-span-8 flex flex-col gap-4">
+          {compras.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-14 rounded-xl border border-dashed border-border/80 bg-card text-center">
+              <img src={PurchaseHistory} alt="" className="w-28 opacity-80 mb-3" />
+              <h3 className="text-foreground font-bold mb-1">
+                Aún no tienes compras registradas
+              </h3>
+              <p className="text-xs text-muted-foreground max-w-xs">
+                Cuando realices una compra, verás aquí el detalle de cada pedido:
+                productos, pagos y estados.
+              </p>
+            </div>
+          ) : (
+            compras.map((c) => {
+              const st = getStatus(c.status);
+              const totalItems = c.items?.length || 0;
+              const primerItem = c.items?.[0];
+              const pago = c.payments?.[0];
 
-            return (
-              <div
-                key={c.id}
-                className="p-4 border-1 border-round border-gray-300"
-              >
-                {/* Encabezado compra */}
-                <div className="flex justify-content-between align-items-center mb-3">
-                  <div>
-                    <div className="text-xl font-bold">Compra #{c.id}</div>
-                    <div className="text-600 text-sm">
-                      {formatDate(c.sale_date)}
+              return (
+                <div
+                  key={c.id}
+                  className="rounded-xl border border-border/80 bg-card shadow-sm hover:shadow-md transition-shadow p-4 md:p-5"
+                >
+                  {/* Cabecera */}
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                        Compra
+                      </span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-spec text-lg font-bold text-foreground">
+                          #{c.id}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(c.sale_date)}
+                        </span>
+                      </div>
+                    </div>
+                    <StatusBadge tone={st.tone}>{st.label}</StatusBadge>
+                  </div>
+
+                  {/* Resumen del pedido */}
+                  <div className="flex items-center gap-3 my-4 py-3 border-y border-border/50">
+                    <Avatar
+                      src={primerItem?.product?.imagen}
+                      fallback={primerItem?.product?.nombre?.charAt(0) || "?"}
+                      className="size-14 rounded-lg bg-secondary/40"
+                    />
+                    <div className="min-w-0">
+                      <div className="font-semibold text-foreground">
+                        <span className="font-spec">{totalItems}</span> producto(s)
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {primerItem?.product?.nombre}
+                        {totalItems > 1 ? " y más…" : ""}
+                      </div>
+                      <div className="font-spec text-success font-bold mt-1">
+                        Total {money(c.total)}
+                      </div>
                     </div>
                   </div>
 
-                  <Tag value={st.label} severity={st.severity} />
-                </div>
+                  {/* Detalles */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                    <MetaBlock label="Resumen">
+                      <span className="text-muted-foreground">
+                        Subtotal <span className="font-spec text-foreground">{money(c.subtotal)}</span>
+                      </span>
+                      <span className="text-muted-foreground">
+                        IGV <span className="font-spec text-foreground">{money(c.tax)}</span>
+                      </span>
+                    </MetaBlock>
 
-                {/* Resumen principal */}
-                <div className="flex align-items-center gap-4 mb-3">
-                  <Avatar
-                    image={primerItem?.product?.imagen}
-                    shape="square"
-                    size="xlarge"
-                  />
+                    <MetaBlock label="Pago">
+                      <span className="text-foreground">{pago?.method || "No registrado"}</span>
+                      <span className="text-muted-foreground">{pago?.status || "—"}</span>
+                    </MetaBlock>
 
-                  <div className="flex flex-column gap-1">
-                    <span className="text-900 font-semibold">
-                      {totalItems} producto(s)
-                    </span>
-                    <span className="text-sm text-600">
-                      {primerItem?.product?.nombre}
-                      {totalItems > 1 ? " y más..." : ""}
-                    </span>
-
-                    <span className="text-green-700 font-bold text-lg mt-2">
-                      Total pagado: {formatMoney(c.total)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Info secundaria */}
-                <div className="grid text-sm text-600 mt-2">
-                  <div className="col-12 md:col-4">
-                    <span className="font-semibold text-700">Resumen:</span>
-                    <div>Subtotal: {formatMoney(c.subtotal)}</div>
-                    <div>IGV: {formatMoney(c.tax)}</div>
+                    <MetaBlock label="Envío">
+                      <span className="text-foreground line-clamp-2">
+                        {c.direccion_envio || "Sin dirección de envío"}
+                      </span>
+                    </MetaBlock>
                   </div>
 
-                  <div className="col-12 md:col-4">
-                    <span className="font-semibold text-700">Pago:</span>
-                    <div>Método: {pago?.method || "No registrado"}</div>
-                    <div>Estado: {pago?.status || "—"}</div>
-                  </div>
-
-                  <div className="col-12 md:col-4">
-                    <span className="font-semibold text-700">Envío:</span>
-                    <div className="truncate-2-lines">
-                      {c.direccion_envio || "Sin dirección de envío"}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-content-end w-full">
+                  <div className="flex justify-end mt-4">
                     <DetailPurchaseModal sale={c} />
                   </div>
                 </div>
-              </div>
-            );
-          })}
-
-          {/* Estado vacío con diseño agradable */}
-          {compras.length === 0 && (
-            <div className="flex flex-column align-items-center justify-content-center py-6 fadein animation-duration-400">
-              <img
-                src={PurchaseHistory}
-                alt="Sin compras"
-                style={{ width: "120px", opacity: 0.85 }}
-                className="mb-3"
-              />
-
-              <h3 className="text-900 font-bold mb-2">
-                Aún no tienes compras registradas
-              </h3>
-
-              <p
-                className="text-600 text-center mb-3"
-                style={{ maxWidth: "320px" }}
-              >
-                Cuando realices una compra, podrás ver aquí el detalle de cada
-                pedido, sus productos, pagos y estados.
-              </p>
-            </div>
+              );
+            })
           )}
         </div>
 
-        {/* Columna lateral: resumen global */}
-        <div className="col-12 lg:col-3">
-          <div className="surface-card shadow-2 border-round p-3 flex flex-column gap-3">
-            <h3 className="text-lg font-bold text-900 mb-2">
-              Resumen general
-            </h3>
-
-            <div className="flex justify-content-between align-items-center">
-              <span className="text-600 text-sm">Compras realizadas</span>
-              <span className="font-bold text-900">{compras.length}</span>
+        {/* Panel de resumen */}
+        <div className="col-span-12 lg:col-span-4">
+          <div className="lg:sticky lg:top-24 rounded-xl border border-border/80 bg-card shadow-sm p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Resumen general
+              </span>
+              <span className="h-px flex-1 bg-border/60" />
             </div>
 
-            <div className="flex justify-content-between align-items-center">
-              <span className="text-600 text-sm">Total gastado (aprox.)</span>
-              <span className="font-bold text-green-700">
-                {formatMoney(
-                  compras.reduce(
-                    (acc, c) => acc + Number(c.total || 0),
-                    0
-                  )
-                )}
-              </span>
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-sm text-muted-foreground">Compras realizadas</span>
+              <span className="font-spec font-bold text-foreground">{compras.length}</span>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Total gastado</span>
+              <span className="font-spec font-bold text-success">{money(totalGastado)}</span>
             </div>
 
             {compras.length > 0 && (
-              <div className="flex flex-column mt-2">
-                <span className="text-600 text-sm mb-1">
+              <div className="mt-4 pt-4 border-t border-border/60">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   Última compra
                 </span>
-                <span className="font-medium text-900">
-                  #{compras[0].id} – {formatDate(compras[0].sale_date)}
-                </span>
+                <div className="text-sm font-medium text-foreground mt-1">
+                  <span className="font-spec">#{compras[0].id}</span> ·{" "}
+                  {formatDate(compras[0].sale_date)}
+                </div>
               </div>
             )}
           </div>

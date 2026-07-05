@@ -1,8 +1,28 @@
-import CustomModal from "../common/CustomModal";
-import { Tag } from "primereact/tag";
-import { Divider } from "primereact/divider";
 import { useState } from "react";
+import CustomModal from "../common/CustomModal";
 import ActionButton from "../common/ActionButton";
+import StatusBadge from "../common/StatusBadge";
+
+const STATUS = {
+  pendiente_envio: { label: "Pendiente de envío", tone: "warning" },
+  en_preparacion: { label: "En preparación", tone: "muted" },
+  en_camino: { label: "En camino", tone: "primary" },
+  entregado: { label: "Entregado", tone: "success" },
+  cancelado: { label: "Cancelado", tone: "danger" },
+};
+const getStatus = (s) => STATUS[s] || { label: s, tone: "muted" };
+const money = (v) => `S/ ${Number(v || 0).toFixed(2)}`;
+
+function MetaBlock({ label, children }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground mb-0.5">
+        {label}
+      </span>
+      {children}
+    </div>
+  );
+}
 
 export default function DetailPurchaseModal({ sale }) {
   const [visible, setVisible] = useState(false);
@@ -12,8 +32,6 @@ export default function DetailPurchaseModal({ sale }) {
 
   if (!sale) return null;
 
-  const formatMoney = (v) => `S/ ${Number(v || 0).toFixed(2)}`;
-
   const formatDateTime = (dateString) => {
     const utcDate = new Date(dateString + " UTC");
     return utcDate.toLocaleString("es-PE", {
@@ -22,29 +40,18 @@ export default function DetailPurchaseModal({ sale }) {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
-  const formatStatus = (status) => {
-    const map = {
-      pendiente_envio: { label: "Pendiente de envío", severity: "warning" },
-      en_preparacion: { label: "En preparación", severity: "info" },
-      en_camino: { label: "En camino", severity: "info" },
-      entregado: { label: "Entregado", severity: "success" },
-      cancelado: { label: "Cancelado", severity: "danger" }
-    };
-    return map[status] || { label: status, severity: null };
-  };
-
-  const formatQty = (q, unit) => {
-    const qty = Number(q);
-    const u = unit?.nombre?.toLowerCase() || "";
-    return `${qty} ${u}`;
-  };
-
-  const st = formatStatus(sale.status);
+  const st = getStatus(sale.status);
   const pago = sale.payments?.[0];
+
+  const footerActions = (
+    <div className="flex justify-end w-full">
+      <ActionButton label="Cerrar" icon="pi pi-times" color="secondary" onClick={hideModal} />
+    </div>
+  );
 
   return (
     <>
@@ -60,108 +67,124 @@ export default function DetailPurchaseModal({ sale }) {
         visible={visible}
         onHide={hideModal}
         header={`Detalle de compra #${sale.id}`}
-        className="w-12"
-        footerActions={null}
+        className="w-[92vw] sm:w-[76vw] md:w-[58vw] lg:w-[48vw]"
+        footerActions={footerActions}
       >
-        <div className="flex flex-column gap-4">
-
-          <div className="flex justify-content-between align-items-center">
-            <div className="flex flex-column">
-              <span className="text-sm text-600">Fecha de compra</span>
-              <span className="font-semibold">{formatDateTime(sale.sale_date)}</span>
-            </div>
-            <Tag value={st.label} severity={st.severity} />
-          </div>
-
-          <Divider />
-
-          <div className="grid px-3">
-            <div className="col-12 lg:col-4 flex flex-column gap-1">
-              <span className="text-sm text-600">Resumen</span>
-              <span>Subtotal: {formatMoney(sale.subtotal)}</span>
-              <span>IGV: {formatMoney(sale.tax)}</span>
-              <span className="text-lg font-bold text-green-700">
-                Total: {formatMoney(sale.total)}
+        <div className="flex flex-col gap-5">
+          {/* Fecha + estado */}
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                Fecha de compra
+              </span>
+              <span className="font-medium text-foreground">
+                {formatDateTime(sale.sale_date)}
               </span>
             </div>
-
-            <div className="col-12 lg:col-4 flex flex-column gap-1">
-              <span className="text-sm text-600">Pago</span>
-              <span>Método: {pago?.method || "No registrado"}</span>
-              <span>Monto: {formatMoney(pago?.amount)}</span>
-              <span>Estado: {pago?.status || "—"}</span>
-              {pago?.card_last4 && (
-                <span>Tarjeta: **** **** **** {pago.card_last4}</span>
-              )}
-            </div>
-
-            <div className="col-12 lg:col-4 flex flex-column gap-1">
-              <span className="text-sm text-600">Envío</span>
-              <span className="text-900">{sale.direccion_envio || "Sin dirección de envío"}</span>
-            </div>
+            <StatusBadge tone={st.tone}>{st.label}</StatusBadge>
           </div>
 
-          <Divider />
+          {/* Resumen / Pago / Envío */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-xl border border-border/80 bg-secondary/30 p-4 text-sm">
+            <MetaBlock label="Resumen">
+              <span className="text-muted-foreground">
+                Subtotal <span className="font-spec text-foreground">{money(sale.subtotal)}</span>
+              </span>
+              <span className="text-muted-foreground">
+                IGV <span className="font-spec text-foreground">{money(sale.tax)}</span>
+              </span>
+              <span className="text-foreground font-semibold mt-0.5">
+                Total <span className="font-spec text-success">{money(sale.total)}</span>
+              </span>
+            </MetaBlock>
 
+            <MetaBlock label="Pago">
+              <span className="text-foreground">{pago?.method || "No registrado"}</span>
+              <span className="text-muted-foreground">
+                Monto <span className="font-spec text-foreground">{money(pago?.amount)}</span>
+              </span>
+              <span className="text-muted-foreground">{pago?.status || "—"}</span>
+              {pago?.card_last4 && (
+                <span className="font-spec text-muted-foreground">•••• {pago.card_last4}</span>
+              )}
+            </MetaBlock>
+
+            <MetaBlock label="Envío">
+              <span className="text-foreground line-clamp-3">
+                {sale.direccion_envio || "Sin dirección de envío"}
+              </span>
+            </MetaBlock>
+          </div>
+
+          {/* Productos */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">Productos</h3>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Productos ({sale.items.length})
+              </span>
+              <span className="h-px flex-1 bg-border/60" />
+            </div>
 
-            <div className="flex flex-column gap-3">
+            <div className="flex flex-col gap-3">
               {sale.items.map((item) => {
                 const prod = item.product;
                 const price = Number(item.price);
                 const discount = Number(prod.descuento || 0);
-
-                const finalPrice =
-                  discount > 0 ? price - (price * discount) / 100 : price;
+                const qty = Number(item.quantity);
+                const finalPrice = discount > 0 ? price - (price * discount) / 100 : price;
+                const unitName = prod.unit?.abreviatura || "";
 
                 return (
                   <div
                     key={item.id}
-                    className="p-3 border-1 surface-border border-round flex gap-3 align-items-start"
+                    className="flex gap-3 p-3 rounded-xl border border-border/80 bg-card"
                   >
                     <img
                       src={prod.imagen}
                       alt={prod.nombre}
-                      className="border-round"
-                      style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                      className="size-16 shrink-0 rounded-lg border border-border/60 bg-secondary/30 object-contain p-1"
                     />
 
-                    <div className="flex flex-column justify-content-between flex-1 gap-2">
-                      <div className="flex flex-column gap-1">
-                        <span className="font-semibold text-lg">{prod.nombre}</span>
-                        <span className="text-sm text-600">{prod.descripcion}</span>
+                    <div className="flex-1 min-w-0">
+                      <h5 className="m-0 text-sm font-semibold text-foreground truncate">
+                        {prod.nombre}
+                      </h5>
+                      {prod.descripcion && (
+                        <p className="m-0 mt-0.5 text-xs text-muted-foreground line-clamp-1">
+                          {prod.descripcion}
+                        </p>
+                      )}
 
-                        <div className="flex gap-2 align-items-center mt-2 flex-wrap">
-                          {discount > 0 ? (
-                            <>
-                              <span className="text-green-600 font-bold text-lg">
-                                {formatMoney(finalPrice)}
-                              </span>
-                              <span className="text-500 text-sm line-through">
-                                {formatMoney(price)}
-                              </span>
-                              <span className="text-red-500 text-xs font-bold">
-                                -{discount}%
-                              </span>
-                            </>
-                          ) : (
-                            <span className="text-900 font-bold text-lg">
-                              {formatMoney(price)}
-                            </span>
-                          )}
-                        </div>
-
-                        <span className="text-sm text-700">
-                          {formatQty(item.quantity, prod.unit)}
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <span className="font-spec text-sm font-bold text-foreground">
+                          {money(finalPrice)}
                         </span>
+                        {discount > 0 && (
+                          <>
+                            <span className="font-spec text-xs text-muted-foreground line-through">
+                              {money(price)}
+                            </span>
+                            <span className="font-spec text-[11px] font-bold text-destructive">
+                              -{discount}%
+                            </span>
+                          </>
+                        )}
                       </div>
+
+                      <p className="m-0 mt-1 text-[11px] text-muted-foreground">
+                        Cantidad:{" "}
+                        <span className="font-spec">
+                          {qty} {unitName}
+                        </span>
+                      </p>
                     </div>
 
-                    <div className="text-right min-w-max">
-                      <span className="text-sm text-600">Subtotal</span>
-                      <div className="font-bold text-xl">
-                        {formatMoney(item.subtotal)}
+                    <div className="text-right shrink-0">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                        Subtotal
+                      </div>
+                      <div className="font-spec text-base font-bold text-foreground">
+                        {money(item.subtotal)}
                       </div>
                     </div>
                   </div>

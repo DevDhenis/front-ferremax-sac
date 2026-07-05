@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { InputText } from "primereact/inputtext";
-import { Button } from "primereact/button";
-import { Checkbox } from "primereact/checkbox";
 import ActionButton from "../common/ActionButton";
 import CustomModal from "../common/CustomModal";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/services/auth/authContext";
 
 export default function CreateRol({ onCreated }) {
@@ -26,30 +25,26 @@ export default function CreateRol({ onCreated }) {
   };
 
   useEffect(() => {
-    if (isOpen) {
-      getAccesses();
-    }
+    if (isOpen) getAccesses();
   }, [isOpen]);
 
+  const toggleAccess = (id) => {
+    setSelectedAccesses((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
   const handleSave = async () => {
+    if (!nombre.trim()) return;
     try {
       setLoading(true);
       const { data } = await http.post("/roles", { nombre, descripcion });
-      console.log("Respuesta creación rol:", data);
-
       if (data.success) {
         const roleId = data.data?.id || data.id || data.role?.id;
-        if (!roleId) {
-          console.error("No se encontró el ID del rol en la respuesta.");
-          return;
-        }
-
+        if (!roleId) return;
         if (selectedAccesses.length > 0) {
-          await http.post(`/roles/${roleId}/accesses`, {
-            access_ids: selectedAccesses,
-          });
+          await http.post(`/roles/${roleId}/accesses`, { access_ids: selectedAccesses });
         }
-
         if (onCreated) onCreated();
         handleClose();
       }
@@ -60,7 +55,6 @@ export default function CreateRol({ onCreated }) {
     }
   };
 
-
   const handleClose = () => {
     setIsOpen(false);
     setNombre("");
@@ -69,12 +63,14 @@ export default function CreateRol({ onCreated }) {
   };
 
   const footer = (
-    <div className="flex justify-end gap-2">
-      <Button label="Cancelar" className="p-button-text" onClick={handleClose} />
-      <Button
-        label="Guardar"
+    <div className="flex justify-end gap-2 w-full">
+      <ActionButton label="Cancelar" icon="pi pi-times" color="secondary" onClick={handleClose} disabled={loading} />
+      <ActionButton
+        label="Crear rol"
         icon="pi pi-check"
+        color="success"
         loading={loading}
+        disabled={!nombre.trim() || loading}
         onClick={handleSave}
       />
     </div>
@@ -82,61 +78,45 @@ export default function CreateRol({ onCreated }) {
 
   return (
     <>
-      <ActionButton
-        icon="pi-plus"
-        tooltip="Crear rol"
-        onClick={() => setIsOpen(true)}
-      />
+      <ActionButton icon="pi pi-plus" label="Crear rol" tooltip="Crear rol" onClick={() => setIsOpen(true)} />
 
       <CustomModal
         visible={isOpen}
         onHide={handleClose}
         header="Crear rol"
         footerActions={footer}
-        widthPercentage={60}
+        className="w-[92vw] sm:w-[70vw] md:w-[52vw] lg:w-[44vw]"
       >
-        <div className="flex flex-column gap-3">
-          <div>
-            <label className="block mb-1">Nombre</label>
-            <InputText
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="w-full"
-            />
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-foreground">Nombre *</label>
+            <Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Vendedor" className="bg-card" />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-foreground">Descripción</label>
+            <Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Descripción del rol" className="bg-card" />
           </div>
 
           <div>
-            <label className="block mb-1">Descripción</label>
-            <InputText
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              className="w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2">Accesos</label>
-            <div className="grid">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Accesos
+              </span>
+              <span className="h-px flex-1 bg-border/60" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {accesses.map((acc) => (
-                <div
+                <label
                   key={acc.id}
-                  className="col-6 flex align-items-center gap-2 mb-2"
+                  className="flex items-center gap-2.5 rounded-lg border border-border/70 bg-card px-3 py-2 cursor-pointer transition-colors hover:bg-secondary/50 select-none"
                 >
                   <Checkbox
-                    inputId={`acc-${acc.id}`}
-                    value={acc.id}
-                    onChange={(e) => {
-                      const value = e.value;
-                      setSelectedAccesses((prev) =>
-                        prev.includes(value)
-                          ? prev.filter((id) => id !== value)
-                          : [...prev, value]
-                      );
-                    }}
                     checked={selectedAccesses.includes(acc.id)}
+                    onCheckedChange={() => toggleAccess(acc.id)}
                   />
-                  <label htmlFor={`acc-${acc.id}`}>{acc.nombre}</label>
-                </div>
+                  <span className="text-sm text-foreground">{acc.nombre}</span>
+                </label>
               ))}
             </div>
           </div>

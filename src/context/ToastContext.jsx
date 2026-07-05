@@ -1,5 +1,5 @@
-import { createContext, useContext, useRef } from "react";
-import { Toast } from "primereact/toast";
+import { createContext, useContext } from "react";
+import { toast as sonnerToast } from "sonner";
 
 const ToastContext = createContext(null);
 
@@ -12,15 +12,18 @@ export const useToast = () => {
 };
 
 export const ToastProvider = ({ children }) => {
-  const toast = useRef(null);
-
   const showToast = (severity, summary, detail, life = 5000) => {
-    toast.current?.show({
-      severity,
-      summary,
-      detail,
-      life
-    });
+    const options = detail ? { description: detail, duration: life } : { duration: life };
+    
+    if (severity === "success") {
+      sonnerToast.success(summary, options);
+    } else if (severity === "error" || severity === "danger") {
+      sonnerToast.error(summary, options);
+    } else if (severity === "warn" || severity === "warning") {
+      sonnerToast.warning(summary, options);
+    } else {
+      sonnerToast.info(summary, options);
+    }
   };
 
   const showSuccess = (summary, detail) => {
@@ -40,7 +43,7 @@ export const ToastProvider = ({ children }) => {
   };
 
   const clearToasts = () => {
-    toast.current?.clear();
+    sonnerToast.dismiss();
   };
 
   const value = {
@@ -54,7 +57,6 @@ export const ToastProvider = ({ children }) => {
 
   return (
     <ToastContext.Provider value={value}>
-      <Toast ref={toast} position="top-right" />
       {children}
     </ToastContext.Provider>
   );

@@ -1,5 +1,12 @@
 import React from 'react';
-import { Dialog } from 'primereact/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 const CustomModal = ({
   visible,
@@ -7,7 +14,7 @@ const CustomModal = ({
   header,
   children,
   footerActions,
-  className = 'w-10 sm:w-8 md:w-5 lg:w-4 xl:w-4',
+  className = 'w-[83vw] sm:w-[66vw] md:w-[42vw] lg:w-[33vw] xl:w-[33vw]',
   style,
   closeOnEscape = true,
   dismissableMask = false,
@@ -15,34 +22,40 @@ const CustomModal = ({
   centered = true,
   widthPercentage = 90
 }) => {
-  const renderDialog = () => {
-    const modalDialog = (
-      <Dialog
-        className={className}
-        header={header}
-        visible={visible}
-        onHide={onHide}
-        footer={footerActions}
-        style={{
-          ...style,
-          maxWidth: centered ? `${widthPercentage}%` : undefined,
-          margin: centered ? '0 auto' : undefined
+  return (
+    <Dialog open={visible} onOpenChange={(open) => { if (!open) onHide(); }}>
+      <DialogContent
+        className={cn("sm:max-w-none md:max-w-none lg:max-w-none xl:max-w-none", className)}
+        style={style}
+        onInteractOutside={(event) => {
+          if (!dismissableMask) {
+            event.preventDefault();
+          }
         }}
-        modal
-        closeOnEscape={closeOnEscape}
-        dismissableMask={dismissableMask}
-        position={position}
-        draggable={false}
-        resizable={false}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape' && !closeOnEscape) {
+            event.preventDefault();
+          }
+        }}
       >
-        {children}
-      </Dialog>
-    );
+        {header && (
+          <DialogHeader>
+            <DialogTitle>{header}</DialogTitle>
+          </DialogHeader>
+        )}
+        
+        <div className="flex-1 overflow-y-auto max-h-[70vh] py-1 text-sm text-foreground">
+          {children}
+        </div>
 
-    return modalDialog;
-  };
-
-  return renderDialog();
+        {footerActions && (
+          <DialogFooter className="border-t border-border/40 pt-4 mt-2">
+            {footerActions}
+          </DialogFooter>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 export default CustomModal;

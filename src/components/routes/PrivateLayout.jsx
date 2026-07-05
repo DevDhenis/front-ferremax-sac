@@ -10,13 +10,14 @@ import SalesPage from "@/pages/sales/SalesPage";
 import PurchaseHistoryPage from "@/pages/shopping/PurchaseHistoryPage";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { CartProvider } from "@/context/CartContext";
 
 export default function PrivateLayout() {
   return (
     <TooltipProvider>
       <SidebarProvider
         className="h-screen w-screen overflow-hidden bg-background"
-        style={{ "--sidebar-width": "18rem", "--sidebar-width-icon": "4rem" }}
+        style={{ "--sidebar-width": "18rem", "--sidebar-width-icon": "3rem" }}
       >
         {/* Official Shadcn Sidebar */}
         <AppSidebar />
@@ -30,7 +31,14 @@ export default function PrivateLayout() {
           <main className="flex-1 overflow-auto bg-background">
             <Routes>
               <Route path="/" element={<Navigate to="/catalogo" replace />} />
-              <Route path="/catalogo" element={<Catalog />} />
+              <Route
+                path="/catalogo"
+                element={
+                  <CartProvider>
+                    <Catalog />
+                  </CartProvider>
+                }
+              />
               <Route path="/roles" element={<RolesListPage />} />
               <Route path="/trabajadores" element={<Workers />} />
               <Route path="/inventario" element={<Inventory />} />

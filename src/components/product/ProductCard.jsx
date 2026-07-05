@@ -1,108 +1,102 @@
-import { Card } from "primereact/card";
-import { Button } from "primereact/button";
-import { Tag } from "primereact/tag";
+import { ShoppingCart } from "lucide-react";
 
 export default function ProductCard({ producto, onAddToCart }) {
-  const calcularPrecioConDescuento = (precio, descuento) => {
-    return precio - (precio * descuento / 100);
-  };
-
+  const precio = parseFloat(producto.pre_uni);
+  const descuento = Number(producto.descuento) || 0;
   const precioFinal = producto.en_promocion
-    ? calcularPrecioConDescuento(parseFloat(producto.pre_uni), producto.descuento)
-    : parseFloat(producto.pre_uni);
+    ? precio - (precio * descuento) / 100
+    : precio;
 
-  const tieneStock = parseFloat(producto.stock) > 0;
+  const stock = parseFloat(producto.stock);
+  const minimo = parseFloat(producto.cantidad_minima) || 0;
+  const unidad = producto.unit?.abreviatura ?? "u";
+
+  const tieneStock = stock > 0;
+  const bajoStock = tieneStock && stock <= minimo;
+
+  const estadoStock = !tieneStock
+    ? { dot: "bg-destructive", text: "text-destructive", label: "Agotado" }
+    : bajoStock
+      ? { dot: "bg-warning", text: "text-warning", label: "Últimas unidades" }
+      : { dot: "bg-success", text: "text-success", label: "En stock" };
 
   const handleAddToCart = () => {
-    if (tieneStock && onAddToCart) {
-      onAddToCart(producto);
-    }
+    if (tieneStock && onAddToCart) onAddToCart(producto);
   };
 
   return (
-    <Card
-      className="shadow-4 border-round-xl hover:shadow-8 transition-all transition-duration-300 overflow-hidden border-1 surface-border">
-      <div className="flex flex-column h-30rem">
-        <div className="relative">
-          <div className="bg-gray-100 p-4 border-round-top-xl flex justify-content-center align-items-center">
-            <img
-              src={producto.imagen}
-              alt={producto.nombre}
-              className="w-8rem h-8rem object-contain"
-            />
-          </div>
+    <div className="group bg-card rounded-xl border border-border/80 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-border transition-all duration-300 overflow-hidden flex flex-col h-[28rem] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+      {/* Imagen + etiquetas de almacén */}
+      <div className="relative bg-secondary/30 h-44 border-b border-border/50 shrink-0">
+        {/* SKU: etiqueta tipo pick-label */}
+        <span className="absolute top-3 left-3 z-10 font-spec text-[10px] tracking-wide text-muted-foreground bg-card/85 backdrop-blur-sm px-1.5 py-0.5 rounded border border-border/60">
+          {producto.codigo_interno}
+        </span>
 
-          <div className="absolute top-0 right-0 p-2 flex justify-content-between">
-            {producto.en_promocion && (
-              <Tag
-                value={`-${producto.descuento}%`}
-                severity="danger"
-                className="shadow-2 font-bold"
-              />
-            )}
+        {producto.en_promocion && (
+          <span className="absolute top-3 right-3 z-10 inline-flex items-center bg-destructive-bg text-destructive border border-destructive/20 font-spec text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+            −{descuento}%
+          </span>
+        )}
 
-            {!tieneStock && (
-              <Tag
-                value="AGOTADO"
-                severity="secondary"
-                className="shadow-2 font-bold"
-              />
-            )}
-          </div>
+        <div className="h-full flex items-center justify-center p-5">
+          <img
+            src={producto.imagen}
+            alt={producto.nombre}
+            className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          />
         </div>
+      </div>
 
-        <div className="flex flex-column flex-1 justify-content-between p-3">
-          <div className="flex justify-content-center">
-            <Tag
-              value={producto.category?.nombre}
-              severity="info"
-              className="text-xs"
-            />
-          </div>
+      {/* Contenido */}
+      <div className="p-4 flex flex-col flex-1 gap-1.5">
+        <span className="text-[10px] uppercase font-semibold tracking-[0.16em] text-muted-foreground truncate">
+          {producto.category?.nombre}
+        </span>
 
-          <h3 className="text-lg m-0 font-bold text-900">
-            {producto.nombre}
-          </h3>
+        <h3 className="text-sm font-bold text-foreground line-clamp-2 leading-snug m-0">
+          {producto.nombre}
+        </h3>
 
-          <p className="text-sm text-600 m-0 text-ellipsis-4">
-            {producto.descripcion || "Sin descripción"}
-          </p>
+        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed m-0">
+          {producto.descripcion || "Sin descripción."}
+        </p>
 
-          <small className="text-500 flex gap-1">
-            Stock:
-            <span className={tieneStock ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
-              {parseFloat(producto.stock)} {producto.unit?.abreviatura}
+        {/* Pie: precio, stock y acción */}
+        <div className="mt-auto pt-3 space-y-2.5">
+          <div className="flex items-baseline gap-2">
+            <span className="font-spec text-xl font-bold text-foreground">
+              S/ {precioFinal.toFixed(2)}
             </span>
-          </small>
-
-          <div className="flex align-items-center gap-2">
-            {producto.en_promocion ? (
-              <>
-                <span className="text-xl font-bold text-green-600">
-                  S/ {precioFinal.toFixed(2)}
-                </span>
-                <span className="text-sm text-500 line-through">
-                  S/ {parseFloat(producto.pre_uni).toFixed(2)}
-                </span>
-              </>
-            ) : (
-              <span className="text-xl font-bold text-900">
-                S/ {parseFloat(producto.pre_uni).toFixed(2)}
+            {producto.en_promocion && (
+              <span className="font-spec text-xs text-muted-foreground line-through">
+                S/ {precio.toFixed(2)}
               </span>
             )}
           </div>
 
-          <Button
-            label={tieneStock ? "Agregar al carrito" : "Sin stock"}
-            icon="pi pi-shopping-cart"
-            className={`w-full ${tieneStock ? 'p-button-success' : 'p-button-secondary'}`}
-            size="small"
-            disabled={!tieneStock}
-            severity={tieneStock ? "success" : "secondary"}
+          <div className={`flex items-center gap-1.5 text-[11px] font-medium ${estadoStock.text}`}>
+            <span className={`size-1.5 rounded-full ${estadoStock.dot}`} />
+            <span>{estadoStock.label}</span>
+            {tieneStock && (
+              <span className="font-spec text-muted-foreground/90">· {stock} {unidad}</span>
+            )}
+          </div>
+
+          <button
             onClick={handleAddToCart}
-          />
+            disabled={!tieneStock}
+            className={`w-full py-2 px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 outline-none focus-visible:ring-3 focus-visible:ring-primary/30 ${
+              tieneStock
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 active:translate-y-px shadow-sm cursor-pointer"
+                : "bg-secondary text-muted-foreground border border-border/80 cursor-not-allowed"
+            }`}
+          >
+            <ShoppingCart className="size-3.5" />
+            <span>{tieneStock ? "Agregar al carrito" : "Sin stock"}</span>
+          </button>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
