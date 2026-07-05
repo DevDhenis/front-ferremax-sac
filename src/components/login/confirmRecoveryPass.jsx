@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { InputText } from 'primereact/inputtext';
 import { useAuth } from '@/services/auth/authContext';
-import ActionButton from '../common/ActionButton';
 import { useToast } from "@/context/ToastContext";
 import CustomModal from '../common/CustomModal';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function ConfirmRecoveryPass() {
   const { http } = useAuth();
@@ -15,10 +15,14 @@ export default function ConfirmRecoveryPass() {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const emailError =
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && submitted
-      ? 'Correo inválido'
-      : '';
+  const getEmailError = () => {
+    if (!submitted) return "";
+    if (!email) return "El correo es obligatorio";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Formato de correo inválido";
+    return "";
+  };
+
+  const emailError = getEmailError();
 
   const close = () => {
     setEmail('');
@@ -28,12 +32,14 @@ export default function ConfirmRecoveryPass() {
 
   const sendEmail = async () => {
     setSubmitted(true);
-    if (emailError) return;
+    const currentError = getEmailError();
+    if (currentError || !email) return;
 
     setLoading(true);
     try {
       await http.post('auth/forgot-password', { email });
       close();
+      showToast("success", "Correo enviado", "Se envió un código a tu correo.");
       navigate(`/verification?email=${encodeURIComponent(email)}&type=recoveryPass`);
     } catch (error) {
       close();
@@ -43,57 +49,61 @@ export default function ConfirmRecoveryPass() {
   };
 
   const footer = (
-    <div className="flex justify-center gap-2 w-full">
-      <ActionButton
-        label="Cancelar"
-        color="danger"
+    <div className="flex justify-end gap-2 w-full">
+      <Button
+        variant="ghost"
         onClick={close}
         disabled={loading}
-      />
-      <ActionButton
-        label="Enviar"
-        color="primary"
+        className="cursor-pointer"
+      >
+        Cancelar
+      </Button>
+      <Button
         onClick={sendEmail}
-        loading={loading}
-      />
+        disabled={loading}
+        className="cursor-pointer"
+      >
+        {loading ? "Enviando..." : "Enviar"}
+      </Button>
     </div>
   );
 
   return (
     <>
-      <div className="text-center">
-        <Link
-          onClick={() => setVisible(true)}
-          className="text-sm cursor-pointer text-blue-500"
-        >
-          ¿Has olvidado tu contraseña?
-        </Link>
-      </div>
+      <button
+        type="button"
+        onClick={() => setVisible(true)}
+        className="text-xs font-semibold text-primary hover:underline cursor-pointer outline-none bg-transparent border-0 p-0"
+      >
+        ¿Olvidaste tu contraseña?
+      </button>
 
       <CustomModal
         visible={visible}
         onHide={close}
         header="Recuperar contraseña"
         footerActions={footer}
+        dismissableMask={false}
       >
-        <p className="text-base mb-3">
-          Introduce tu correo electrónico para buscar tu cuenta.
+        <p className="text-sm text-muted-foreground mb-4">
+          Introduce tu correo electrónico para buscar tu cuenta y recibir un código de verificación.
         </p>
 
-        <div className="flex flex-column">
-          <label htmlFor="email" className="font-semibold">
-            Correo
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="recovery-email" className="text-xs font-semibold text-foreground/80">
+            Correo electrónico
           </label>
-          <InputText
-            id="email"
+          <Input
+            id="recovery-email"
             type="email"
             value={email}
-            placeholder="Ingresa tu correo electrónico"
+            placeholder="correo@empresa.com"
             onChange={(e) => setEmail(e.target.value)}
-            className={`w-full ${emailError ? 'p-invalid' : ''}`}
+            className={`h-10 ${emailError ? 'border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20' : ''}`}
+            disabled={loading}
           />
           {emailError && (
-            <small className="p-error text-sm">{emailError}</small>
+            <span className="text-xs text-destructive font-medium mt-0.5">{emailError}</span>
           )}
         </div>
       </CustomModal>
