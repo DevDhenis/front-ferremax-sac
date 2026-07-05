@@ -1,6 +1,74 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
+:root {
+  --sidebar-width: 16rem;
+  --sidebar-width-mobile: 18rem;
+  --sidebar-width-icon: 3.5rem;
+}
+
+@theme {
+  /* ── Quiet — paleta grafito cálido (papel + un acento casi sin color) ── */
+  /* Superficies */
+  --color-background: #F7F6F3;
+  --color-foreground: #22201C;
+  --color-card: #FCFBF8;
+  --color-card-foreground: #22201C;
+  --color-popover: #FFFFFD;
+  --color-popover-foreground: #22201C;
+
+  /* Acento (grafito cálido) */
+  --color-primary: #2B2620;
+  --color-primary-foreground: #FAF9F6;
+  --color-secondary: #EFEDE8;
+  --color-secondary-foreground: #22201C;
+  --color-accent: #EEEBE5;
+  --color-accent-foreground: #443C31;
+
+  /* Neutros / texto */
+  --color-muted: #EFEDE8;
+  --color-muted-foreground: #6A665E;
+  --color-placeholder: #A7A199;
+  --color-border: #E8E5DF;
+  --color-input: #E8E5DF;
+  --color-ring: #2B2620;
+
+  /* Semánticos (apagados + fondo claro pareado) */
+  --color-destructive: #BE5449;
+  --color-destructive-foreground: #FAF9F6;
+  --color-destructive-bg: #F7EBE8;
+  --color-success: #4C8368;
+  --color-success-foreground: #FAF9F6;
+  --color-success-bg: #ECF2ED;
+  --color-warning: #A97F42;
+  --color-warning-foreground: #FAF9F6;
+  --color-warning-bg: #F4EEDF;
+
+  --radius-lg: 0.5rem;
+  --radius-md: calc(var(--radius-lg) - 2px);
+  --radius-sm: calc(var(--radius-lg) - 4px);
+
+  /* Sidebar */
+  --color-sidebar: #FCFBF8;
+  --color-sidebar-foreground: #22201C;
+  --color-sidebar-primary: #2B2620;
+  --color-sidebar-primary-foreground: #FAF9F6;
+  --color-sidebar-accent: #EEEBE5;
+  --color-sidebar-accent-foreground: #443C31;
+  --color-sidebar-border: #E8E5DF;
+  --color-sidebar-ring: #2B2620;
+}
+
+/* Bordes por defecto usan el token de la paleta (Tailwind v4 usa currentColor
+   si no se define, lo que dibujaba líneas oscuras — ej. el borde del sidebar). */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+}
+
 body {
   margin: 0;
   padding: 0;

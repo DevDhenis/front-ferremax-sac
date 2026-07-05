@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Palette — BORAN S.A.C.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+      :root {
+        /* ── Superficies (papel cálido levísimo, nunca clínico) ── */
+        --bg:         #F7F6F3;   /* canvas — papel cálido casi imperceptible */
+        --surface:    #FCFBF8;   /* card / panel */
+        --elevated:   #FFFFFD;   /* card elevada, modal, popover — susurro cálido */
+        --muted:      #EFEDE8;   /* hover de filas / superficie hundida */
+        --border:     #E8E5DF;   /* borde susurro, cálido */
+        --input-bg:   #FAF9F5;
+
+        /* ── Acento: grafito cálido (sin color, elegante tipo Notion) ── */
+        --accent:     #2B2620;   /* botón primario — tinta cálida casi negra */
+        --accent-h:   #443C31;   /* hover — aclara un paso */
+        --accent-sub: #EEEBE5;   /* fondo de badge / chip — neutro cálido */
+        --accent-ring:#DAD4C8;   /* focus ring, suave */
+        --accent-fg:  #FAF9F6;   /* texto sobre acento (off-white cálido) */
+
+        /* ── Tipografía (neutros cálidos, misma temperatura) ── */
+        --fg:         #22201C;   /* casi negro cálido */
+        --fg-2:       #6A665E;   /* secundario — gris cálido */
+        --fg-3:       #A7A199;   /* terciario — placeholder */
+
+        /* ── Semánticos — apagados, el único color de la UI (solo estados) ── */
+        --success:    #4C8368;   /* esmeralda apagado, no lima */
+        --success-bg: #ECF2ED;
+        --danger:     #BE5449;   /* rojo limpio apagado, no bombero */
+        --danger-bg:  #F7EBE8;
+        --warning:    #A97F42;   /* ámbar tostado */
+        --warning-bg: #F4EEDF;
+
+        /* ── Sombras tintadas en cálido (nunca negro puro) ── */
+        --sh-sm: 0 1px 2px rgba(60,52,40,.05);
+        --sh-md: 0 1px 2px rgba(60,52,40,.04), 0 6px 18px rgba(60,52,40,.05);
+        --sh-lg: 0 10px 30px rgba(60,52,40,.09);
+      }
+
+      body {
+        background: var(--bg);
+        font-family: "Inter", sans-serif;
+        color: var(--fg);
+        min-height: 100vh;
+        padding: 3rem 2rem 5rem;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ── Header ── */
+      header { text-align:center; margin-bottom:3.5rem; }
+      .badge {
+        display: inline-block;
+        background: var(--accent-sub);
+        color: var(--accent-h);
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 0.25rem 0.85rem;
+        border-radius: 99px;
+        border: 1px solid var(--border);
+        margin-bottom: 0.9rem;
+      }
+      header h1 {
+        font-size: 1.9rem;
+        font-weight: 600;
+        color: var(--fg);
+        letter-spacing: -0.5px;
+      }
+      header p {
+        color: var(--fg-3);
+        font-size: 0.83rem;
+        margin-top: 0.35rem;
+      }
+
+      /* ── UI Preview ── */
+      .preview-wrap {
+        max-width: 820px;
+        margin: 0 auto 3.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: var(--sh-md);
+      }
+      .preview-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--fg-3);
+        margin-bottom: 1.25rem;
+      }
+      .preview-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      /* Botones */
+      .btn {
+        padding: 0.45rem 1rem;
+        border-radius: 7px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        font-family: inherit;
+        transition: all .15s;
+      }
+      .btn:hover { filter: brightness(.97); }
+      .btn-primary  { background: var(--accent); color: var(--accent-fg); }
+      .btn-primary:hover { background: var(--accent-h); filter:none; }
+      .btn-secondary{ background: var(--muted); color: var(--fg-2); border: 1px solid var(--border); }
+      .btn-danger   { background: var(--danger-bg); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 22%, transparent); }
+      .btn-ghost    { background: transparent; color: var(--fg-2); border: 1px solid var(--border); }
+
+      /* Tags */
+      .tag {
+        display: inline-flex; align-items:center; gap:0.3rem;
+        padding: 0.22rem 0.65rem;
+        border-radius: 99px;
+        font-size: 0.7rem;
+        font-weight: 600;
+      }
+      .tag-success { background: var(--success-bg); color: var(--success); }
+      .tag-danger  { background: var(--danger-bg);  color: var(--danger);  }
+      .tag-warning { background: var(--warning-bg); color: var(--warning); }
+
+      /* Input */
+      .input-demo {
+        padding: 0.42rem 0.8rem;
+        border: 1.5px solid var(--border);
+        border-radius: 7px;
+        font-size: 0.8rem;
+        color: var(--fg);
+        background: var(--input-bg);
+        outline: none;
+        font-family: inherit;
+        transition: border-color .18s, box-shadow .18s;
+        width: 180px;
+      }
+      .input-demo::placeholder { color: var(--fg-3); }
+      .input-demo:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-ring);
+      }
+
+      /* Mini card — nivel ELEVADO (bg más claro + sombra mayor) */
+      .mini-card {
+        background: var(--elevated);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 0.65rem 0.9rem;
+        box-shadow: var(--sh-md);
+      }
+      .mini-card strong { display:block; font-size:0.82rem; color:var(--fg); margin-bottom:.05rem; }
+      .mini-card span   { font-size:0.72rem; color:var(--fg-2); }
+
+      /* Demo de 3 niveles de superficie anidados */
+      .surface-demo {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 0.9rem;
+        align-items: stretch;
+        flex-wrap: wrap;
+      }
+      .lvl {
+        flex: 1;
+        min-width: 150px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        padding: 0.85rem 0.95rem;
+      }
+      .lvl-name { font-size:0.72rem; font-weight:600; color:var(--fg); }
+      .lvl-meta { font-size:0.62rem; color:var(--fg-3); font-family:monospace; margin-top:.15rem; display:block; }
+      .lvl-bg    { background: var(--bg); }
+      .lvl-card  { background: var(--surface);  box-shadow: var(--sh-sm); }
+      .lvl-elev  { background: var(--elevated); box-shadow: var(--sh-md); }
+
+      /* Alertas — muestran el bg claro pareado de cada semántico */
+      .alert-row { display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1.5rem; }
+      .alert {
+        flex: 1; min-width: 200px;
+        display: flex; align-items: flex-start; gap: 0.55rem;
+        padding: 0.65rem 0.85rem;
+        border-radius: 9px;
+        font-size: 0.76rem;
+        line-height: 1.35;
+        border: 1px solid transparent;
+      }
+      .alert b { font-weight:600; }
+      .alert-success { background:var(--success-bg); color:var(--success); border-color: color-mix(in srgb, var(--success) 20%, transparent); }
+      .alert-danger  { background:var(--danger-bg);  color:var(--danger);  border-color: color-mix(in srgb, var(--danger) 20%, transparent); }
+      .alert-warning { background:var(--warning-bg); color:var(--warning); border-color: color-mix(in srgb, var(--warning) 22%, transparent); }
+
+      /* ── Secciones ── */
+      .wrap   { max-width: 900px; margin: 0 auto 2.5rem; }
+      .sec-lbl {
+        font-size: 0.63rem;
+        font-weight: 600;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--fg-3);
+        margin-bottom: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+      }
+      .sec-lbl::after { content:''; flex:1; height:1px; background:var(--border); }
+
+      /* ── Swatches ── */
+      .sg {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+      }
+      .sw {
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s;
+        box-shadow: var(--sh-sm);
+      }
+      .sw:hover { transform: translateY(-5px); box-shadow: var(--sh-lg); }
+      .sw-color { height: 70px; }
+      .sw-color.b { border-bottom: 1px solid var(--border); }
+      .sw-info { padding: 0.55rem 0.65rem 0.65rem; }
+      .sw-name { display:block; font-size:0.67rem; font-weight:600; color:var(--fg); }
+      .sw-hex  { font-size:0.62rem; color:var(--fg-2); font-family:monospace; }
+      .sw-desc { display:block; font-size:0.56rem; color:var(--fg-3); margin-top:0.1rem; line-height:1.3; }
+
+      /* ── Pairs ── */
+      .pg {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+        gap: 0.75rem;
+      }
+      .pc {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        box-shadow: var(--sh-sm);
+      }
+      .pb {
+        padding: 1.1rem 0.9rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+      .pm { font-size:0.62rem; opacity:.65; margin-top:.2rem; font-family:monospace; font-weight:400; }
+
+      /* ── Token block ── */
+      .token-wrap {
+        max-width: 900px;
+        margin: 0 auto 3rem;
+        background: #22201C;
+        border-radius: 14px;
+        padding: 1.5rem 1.75rem;
+        overflow-x: auto;
+        box-shadow: var(--sh-lg);
+      }
+      .token-wrap pre {
+        font-size: 0.77rem;
+        line-height: 1.7;
+        color: #D6D1C8;
+        font-family: "Courier New", monospace;
+        white-space: pre;
+      }
+      .cp {
+        display: inline-block;
+        margin-top: 1rem;
+        background: #302D28;
+        color: #D6D1C8;
+        border: 1px solid #423E37;
+        border-radius: 7px;
+        padding: 0.4rem 1rem;
+        font-size: 0.75rem;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background .15s;
+      }
+      .cp:hover { background: #3A3630; }
+
+      /* ── Toast ── */
+      .toast {
+        position: fixed; bottom:2rem; left:50%;
+        transform: translateX(-50%) translateY(80px);
+        background: var(--fg);
+        color: #fff;
+        padding: 0.5rem 1.2rem;
+        border-radius: 99px;
+        font-size: 0.76rem;
+        font-weight: 500;
+        transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+        z-index: 9999;
+        pointer-events: none;
+        box-shadow: var(--sh-lg);
+      }
+      .toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+  </head>
+  <body>
+
+    <header>
+      <div class="badge">✦ Propuesta de Paleta</div>
+      <h1>Quiet — Light Mode Palette</h1>
+      <p>Papel cálido · Grafito minimalista · Color solo en los estados</p>
+    </header>
+
+    <!-- UI PREVIEW -->
+    <div class="preview-wrap">
+      <div class="preview-label">Preview de componentes</div>
+      <div class="preview-row">
+        <button class="btn btn-primary">Guardar</button>
+        <button class="btn btn-secondary">Ver detalles</button>
+        <button class="btn btn-ghost">Cancelar</button>
+        <button class="btn btn-danger">Eliminar</button>
+        <span class="tag tag-success">● Activo</span>
+        <span class="tag tag-danger">● Inactivo</span>
+        <span class="tag tag-warning">⚠ Pendiente</span>
+        <input class="input-demo" placeholder="Buscar...">
+        <div class="mini-card">
+          <strong>Stock total</strong>
+          <span>1,240 unidades</span>
+        </div>
+      </div>
+
+      <!-- 3 niveles de superficie -->
+      <div class="surface-demo">
+        <div class="lvl lvl-bg">
+          <span class="lvl-name">Background</span>
+          <span class="lvl-meta">#F7F6F3</span>
+        </div>
+        <div class="lvl lvl-card">
+          <span class="lvl-name">Surface · card</span>
+          <span class="lvl-meta">#FCFBF8</span>
+        </div>
+        <div class="lvl lvl-elev">
+          <span class="lvl-name">Elevated · modal</span>
+          <span class="lvl-meta">#FFFFFD</span>
+        </div>
+      </div>
+
+      <!-- Alertas con bg pareado -->
+      <div class="alert-row">
+        <div class="alert alert-success"><b>Guardado.</b>&nbsp;Los cambios se aplicaron.</div>
+        <div class="alert alert-danger"><b>Error.</b>&nbsp;No se pudo eliminar el registro.</div>
+        <div class="alert alert-warning"><b>Pendiente.</b>&nbsp;Stock por debajo del mínimo.</div>
+      </div>
+    </div>
+
+    <!-- SURFACES -->
+    <div class="wrap">
+      <div class="sec-lbl">Superficies</div>
+      <div class="sg" id="g-surfaces"></div>
+    </div>
+
+    <!-- ACCENT -->
+    <div class="wrap">
+      <div class="sec-lbl">Acento — grafito cálido</div>
+      <div class="sg" id="g-accent"></div>
+    </div>
+
+    <!-- TEXT -->
+    <div class="wrap">
+      <div class="sec-lbl">Tipografía</div>
+      <div class="sg" id="g-text"></div>
+    </div>
+
+    <!-- SEMANTIC -->
+    <div class="wrap">
+      <div class="sec-lbl">Semánticos</div>
+      <div class="sg" id="g-semantic"></div>
+    </div>
+
+    <!-- PAIRS -->
+    <div class="wrap">
+      <div class="sec-lbl">Combinaciones</div>
+      <div class="pg" id="g-pairs"></div>
+    </div>
+
+    <!-- TOKENS -->
+    <div class="token-wrap">
+      <pre id="tokens-pre"></pre>
+      <button class="cp" onclick="copyTokens()">Copiar @theme CSS</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const surfaces = [
+        { name:"background",    hex:"#F7F6F3", desc:"Canvas de la app",          b:true },
+        { name:"surface",       hex:"#FCFBF8", desc:"Cards / paneles",           b:true },
+        { name:"elevated",      hex:"#FFFFFD", desc:"Modal / popover / elevado", b:true },
+        { name:"muted",         hex:"#EFEDE8", desc:"Hover de filas / hundido",  b:true },
+        { name:"border",        hex:"#E8E5DF", desc:"Bordes y separadores" },
+        { name:"input-bg",      hex:"#FAF9F5", desc:"Fondo de inputs",           b:true },
+      ];
+
+      const accents = [
+        { name:"accent",       hex:"#2B2620", desc:"Botón primario, focus" },
+        { name:"accent-hover", hex:"#443C31", desc:"Hover de primario" },
+        { name:"accent-sub",   hex:"#EEEBE5", desc:"Badge / chip bg",   b:true },
+        { name:"accent-ring",  hex:"#DAD4C8", desc:"Focus ring",         b:true },
+      ];
+
+      const texts = [
+        { name:"foreground",  hex:"#22201C", desc:"Texto principal" },
+        { name:"fg-secondary",hex:"#6A665E", desc:"Labels / secundario" },
+        { name:"fg-tertiary", hex:"#A7A199", desc:"Placeholder / disabled" },
+      ];
+
+      const semantics = [
+        { name:"success",     hex:"#4C8368", desc:"Estado activo / éxito" },
+        { name:"success-bg",  hex:"#ECF2ED", desc:"Alert / tag bg",   b:true },
+        { name:"danger",      hex:"#BE5449", desc:"Acción destructiva" },
+        { name:"danger-bg",   hex:"#F7EBE8", desc:"Alert / tag bg",   b:true },
+        { name:"warning",     hex:"#A97F42", desc:"Pendiente / aviso" },
+        { name:"warning-bg",  hex:"#F4EEDF", desc:"Alert / tag bg",   b:true },
+      ];
+
+      const pairs = [
+        { bg:"#2B2620", fg:"#FAF9F6",  note:"Botón principal",  meta:"accent + off-white" },
+        { bg:"#EEEBE5", fg:"#443C31",  note:"Badge / chip",     meta:"accent-sub + accent-hover" },
+        { bg:"#FFFFFD", fg:"#22201C",  note:"Card / modal",     meta:"elevated + foreground" },
+        { bg:"#F7F6F3", fg:"#6A665E",  note:"Texto secundario", meta:"bg + fg-2" },
+        { bg:"#22201C", fg:"#F7F6F3",  note:"Sidebar oscuro",   meta:"fg + bg" },
+        { bg:"#ECF2ED", fg:"#4C8368",  note:"Alerta activa",    meta:"success-bg + success" },
+        { bg:"#F7EBE8", fg:"#BE5449",  note:"Alerta inactiva",  meta:"danger-bg + danger" },
+        { bg:"#F4EEDF", fg:"#A97F42",  note:"Alerta pendiente", meta:"warning-bg + warning" },
+      ];
+
+      const cssTokens =
+`@theme {
+  /* ── Superficies (papel cálido levísimo) ── */
+  --color-background:             #F7F6F3;
+  --color-card:                   #FCFBF8;
+  --color-popover:                #FFFFFD;   /* elevado: modal / popover */
+  --color-muted:                  #EFEDE8;
+  --color-border:                 #E8E5DF;
+  --color-input:                  #E8E5DF;
+  --color-ring:                   #2B2620;
+
+  /* ── Acento (grafito cálido, sin color) ── */
+  --color-primary:                #2B2620;
+  --color-primary-foreground:     #FAF9F6;
+  --color-accent:                 #EEEBE5;   /* subtle bg de chips/hover */
+  --color-accent-foreground:      #443C31;
+  --color-secondary:              #EFEDE8;
+  --color-secondary-foreground:   #22201C;
+
+  /* ── Tipografía (neutros cálidos, misma temperatura) ── */
+  --color-foreground:             #22201C;
+  --color-card-foreground:        #22201C;
+  --color-popover-foreground:     #22201C;
+  --color-muted-foreground:       #6A665E;
+  --color-placeholder:            #A7A199;
+
+  /* ── Semánticos (apagados + bg pareado) ── */
+  --color-success:                #4C8368;
+  --color-success-bg:             #ECF2ED;
+  --color-destructive:            #BE5449;
+  --color-destructive-foreground: #FAF9F6;
+  --color-destructive-bg:         #F7EBE8;
+  --color-warning:                #A97F42;
+  --color-warning-bg:             #F4EEDF;
+
+  /* ── Sidebar ── */
+  --color-sidebar:                    #FCFBF8;
+  --color-sidebar-foreground:         #22201C;
+  --color-sidebar-primary:            #2B2620;
+  --color-sidebar-primary-foreground: #FAF9F6;
+  --color-sidebar-accent:             #EEEBE5;
+  --color-sidebar-accent-foreground:  #443C31;
+  --color-sidebar-border:             #E8E5DF;
+  --color-sidebar-ring:               #2B2620;
+}`;
+
+      document.getElementById("tokens-pre").textContent = cssTokens;
+
+      function sw({ name, hex, desc, b }) {
+        const d = document.createElement("div");
+        d.className = "sw";
+        d.title = `Copiar ${hex}`;
+        d.onclick = () => cp(hex);
+        d.innerHTML = `
+          <div class="sw-color${b?" b":""}" style="background:${hex}"></div>
+          <div class="sw-info">
+            <span class="sw-name">${name}</span>
+            <span class="sw-hex">${hex}</span>
+            <span class="sw-desc">${desc}</span>
+          </div>`;
+        return d;
+      }
+
+      function pair({ bg, fg, note, meta }) {
+        const d = document.createElement("div");
+        d.className = "pc";
+        d.innerHTML = `<div class="pb" style="background:${bg};color:${fg}">${note}<div class="pm">${meta}</div></div>`;
+        return d;
+      }
+
+      surfaces.forEach(c  => document.getElementById("g-surfaces").appendChild(sw(c)));
+      accents.forEach(c   => document.getElementById("g-accent").appendChild(sw(c)));
+      texts.forEach(c     => document.getElementById("g-text").appendChild(sw(c)));
+      semantics.forEach(c => document.getElementById("g-semantic").appendChild(sw(c)));
+      pairs.forEach(p     => document.getElementById("g-pairs").appendChild(pair(p)));
+
+      function cp(val) {
+        navigator.clipboard.writeText(val).then(() => toast(`Copiado: ${val}`));
+      }
+      function copyTokens() {
+        navigator.clipboard.writeText(cssTokens).then(() => toast("Tokens copiados ✓"));
+      }
+      function toast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2000);
+      }
+    </script>
+  </body>
+</html>
