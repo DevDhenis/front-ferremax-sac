@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Column } from "primereact/column";
-import { Avatar } from "primereact/avatar";
-import CompactTable from "@/components/common/CompactTable";
+import { Avatar } from "@/components/ui/avatar";
+import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import CustomModal from "@/components/common/CustomModal";
 import AssignUserForm from "@/components/roles/AssignUserForm";
 import { useAuth } from "@/services/auth/authContext";
@@ -46,30 +46,65 @@ export default function RoleUsersModal({ role, visible, onHide }) {
     }
   }, [visible, role]);
 
-  const avatarBody = (rowData) => (
-    <Avatar
-      image={rowData.person?.imagen || "/default-avatar.png"}
-      label={!rowData.person?.imagen ? rowData.username[0].toUpperCase() : undefined}
-      shape="circle"
-      size="large"
-    />
-  );
+  const columns = [
+    {
+      id: "avatar",
+      header: () => <span className="sr-only">Avatar</span>,
+      enableSorting: false,
+      cell: ({ row }) => {
+        const rowData = row.original;
+        return (
+          <Avatar
+            src={rowData.person?.imagen}
+            fallback={rowData.username?.[0]?.toUpperCase() || "?"}
+            className="size-9"
+          />
+        );
+      },
+    },
+    {
+      accessorKey: "username",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Usuario" />,
+      cell: ({ row }) => (
+        <span className="font-medium text-foreground">{row.original.username}</span>
+      ),
+    },
+    {
+      accessorKey: "email",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.email}</span>
+      ),
+    },
+    {
+      id: "nombre",
+      accessorFn: (r) => r.person?.nombres ?? "",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+      cell: ({ row }) => (
+        <span className="text-foreground">{row.original.person?.nombres || "-"}</span>
+      ),
+    },
+  ];
 
   return (
     <CustomModal
       visible={visible}
       onHide={onHide}
       header={`Usuarios del rol: ${role?.nombre}`}
-      className="w-auto"
+      className="w-[92vw] sm:w-[80vw] md:w-[64vw] lg:w-[56vw]"
     >
       <AssignUserForm role={role} employees={employees} onAssigned={getUsers} />
 
-      <CompactTable value={users} loading={loading} className="mt-3">
-        <Column header="Avatar" body={avatarBody} style={{ width: "80px" }} />
-        <Column header="Usuario" field="username" />
-        <Column header="Email" field="email" />
-        <Column header="Nombre" body={(u) => u.person?.nombres || "-"} />
-      </CompactTable>
+      <div className="mt-3">
+        <DataTable
+          columns={columns}
+          data={users}
+          loading={loading}
+          onRefresh={getUsers}
+          searchPlaceholder="Buscar usuario..."
+          emptyMessage="No hay usuarios asignados a este rol"
+        />
+      </div>
     </CustomModal>
   );
 }
