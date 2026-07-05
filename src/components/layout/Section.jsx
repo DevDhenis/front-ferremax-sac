@@ -10,7 +10,7 @@ import React from 'react'
  */
 const Section = ({ children, className = '', columns = false }) => {
   return (
-    <div className={`flex ${className || (columns ? 'flex-column' : '')}`}>
+    <div className={`flex ${className || (columns ? 'flex-col' : '')}`}>
       {children}
     </div>
   );

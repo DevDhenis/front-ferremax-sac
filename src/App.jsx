@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AuthProvider from "@/services/auth/authProvider";
 import { ToastProvider } from "./context/ToastContext";
-import { ConfirmDialog } from "primereact/confirmdialog";
+import { Toaster } from "@/components/ui/sonner";
 import Register from "./pages/register/Register";
 import Verification from "./pages/verify/Verification";
 import Login from "./pages/login/Login";
@@ -14,7 +14,7 @@ function App() {
     <BrowserRouter>
       <ToastProvider>
         <AuthProvider>
-          <ConfirmDialog />
+          <Toaster />
 
           <Routes>
 
