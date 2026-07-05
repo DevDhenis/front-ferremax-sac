@@ -86,3 +86,10 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Voz "dato": monoespaciada para SKU, precios, stock, unidades y conteos.
+   Va sin capa para ganarle al font-family global de arriba. */
+.font-spec {
+  font-family: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
+  font-feature-settings: "tnum" 1;
+}
