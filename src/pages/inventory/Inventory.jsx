@@ -1,40 +1,36 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/services/auth/authContext";
+import Container from "@/components/layout/Container";
 import InventoryHeader from "@/components/inventory/InventoryHeader";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import ProductFormModal from "@/components/inventory/ProductFormModal";
 import CategoryModal from "@/components/inventory/CategoryModal";
-import { confirmDialog } from "primereact/confirmdialog";
-import { useAuth } from "@/services/auth/authContext";
-import useInventoryReport from "@/hooks/useInventoryReport";
-import Container from "@/components/layout/Container";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export default function Inventory() {
     const { http } = useAuth();
+    const [productos, setProductos] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [visible, setVisible] = useState(false);
     const [categoryVisible, setCategoryVisible] = useState(false);
-    const [productos, setProductos] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [productToDelete, setProductToDelete] = useState(null);
     const [searchValue, setSearchValue] = useState("");
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const { generateStockReport } = useInventoryReport();
-
-    const handleGenerateReport = () => {
-        generateStockReport(productos);
-    };
 
     const getProducts = async () => {
         setLoading(true);
         try {
             const { data } = await http.get("products");
-            setProductos(data.data);
-            setFilteredProducts(data.data);
+            const lista = data?.data ?? [];
+            setProductos(lista);
+            setFilteredProducts(lista);
         } catch (error) {
             console.error("Error cargando productos:", error);
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
         if (searchValue.trim() === "") {
@@ -50,8 +46,9 @@ export default function Inventory() {
         }
     }, [searchValue, productos]);
 
-    const handleSearchChange = (e) => {
-        setSearchValue(e.target.value);
+    const handleSearchChange = (val) => {
+        const value = typeof val === 'object' && val.target ? val.target.value : val;
+        setSearchValue(value);
     };
 
     const handleEditProduct = (product) => {
@@ -64,25 +61,16 @@ export default function Inventory() {
         setVisible(true);
     };
 
-    const deleteProduct = async (id) => {
+    const confirmDelete = async () => {
+        if (!productToDelete) return;
         try {
-            await http.delete(`products/${id}`);
+            await http.delete(`products/${productToDelete.id}`);
             getProducts();
         } catch (error) {
             console.error("Error eliminando producto:", error);
+        } finally {
+            setProductToDelete(null);
         }
-    };
-
-    const confirmDelete = (product) => {
-        confirmDialog({
-            message: `¿Estás seguro de que deseas eliminar el producto "${product.nombre}"?`,
-            header: "Confirmar eliminación",
-            icon: "pi pi-exclamation-triangle",
-            acceptClassName: "p-button-danger",
-            acceptLabel: "Sí, eliminar",
-            rejectLabel: "Cancelar",
-            accept: () => deleteProduct(product.id),
-        });
     };
 
     const handleHideModal = () => {
@@ -91,16 +79,49 @@ export default function Inventory() {
     };
 
     useEffect(() => {
-        const tableHeader = document.querySelectorAll(".p-datatable-thead > tr > th");
-        tableHeader.forEach((th) => {
-            th.style.backgroundColor = "#1E88E5";
-            th.style.color = "#fff";
-        });
         getProducts();
     }, []);
 
+    const handleGenerateReport = () => {
+        const rows = filteredProducts.length ? filteredProducts : productos;
+        if (!rows.length) return;
+
+        const headers = [
+            "Código", "Nombre", "Categoría", "P. Unitario", "P. Mayor",
+            "Stock", "Unidad", "En promoción", "Descuento", "Estado",
+        ];
+        const data = rows.map((p) => [
+            p.codigo_interno,
+            p.nombre,
+            p.category?.nombre ?? "",
+            Number(p.pre_uni).toFixed(2),
+            Number(p.pre_uni_may).toFixed(2),
+            parseFloat(p.stock),
+            p.unit?.abreviatura ?? "",
+            p.en_promocion ? "Sí" : "No",
+            `${p.descuento}%`,
+            p.estado_registro === "A" ? "Activo" : "Inactivo",
+        ]);
+
+        const esc = (v) => {
+            const s = String(v ?? "");
+            return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const csv = [headers, ...data].map((r) => r.map(esc).join(";")).join("\r\n");
+        // BOM para que Excel respete UTF-8 (tildes/ñ).
+        const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `reporte_stock_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     return (
-        <Container>
+        <Container className="space-y-3">
             <InventoryHeader
                 onAddClick={handleAddProduct}
                 onAddCategory={() => setCategoryVisible(true)}
@@ -111,7 +132,7 @@ export default function Inventory() {
             <InventoryTable
                 productos={filteredProducts}
                 onEditProduct={handleEditProduct}
-                onDeleteProduct={confirmDelete}
+                onDeleteProduct={setProductToDelete}
                 onRefresh={getProducts}
                 loading={loading}
             />
@@ -119,11 +140,26 @@ export default function Inventory() {
                 visible={visible}
                 onHide={handleHideModal}
                 product={selectedProduct}
-                onSuccess={getProducts}
+                onSave={getProducts}
             />
             <CategoryModal
                 visible={categoryVisible}
                 onHide={() => setCategoryVisible(false)}
+            />
+
+            <ConfirmDialog
+                open={!!productToDelete}
+                onOpenChange={(o) => !o && setProductToDelete(null)}
+                title="Eliminar producto"
+                description={
+                    <>
+                        ¿Seguro que deseas eliminar el producto{" "}
+                        <span className="font-semibold text-foreground">“{productToDelete?.nombre}”</span>?
+                        Esta acción no se puede deshacer.
+                    </>
+                }
+                confirmLabel="Sí, eliminar"
+                onConfirm={confirmDelete}
             />
         </Container>
     );
