@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { InputText } from "primereact/inputtext";
+import { Input } from "@/components/ui/input";
 import ActionButton from "../common/ActionButton";
 import CustomModal from "../common/CustomModal";
 import { useAuth } from "@/services/auth/authContext";
 import { checkoutShoppingCart } from "@/services/shopping-cart";
 import { useToast } from "@/context/ToastContext";
 
-export default function PaymentModal({ cartEmpty, reloadCart }) {
+export default function PaymentModal({ cartEmpty, reloadCart, onPaid }) {
   const { http } = useAuth();
   const { showToast } = useToast();
   const [visible, setVisible] = useState(false);
@@ -76,6 +76,8 @@ export default function PaymentModal({ cartEmpty, reloadCart }) {
       if (reloadCart) {
         await reloadCart();
       }
+      // Recarga los productos del catálogo para reflejar el stock actualizado.
+      onPaid?.();
 
     } catch (error) {
       console.error("Error en pago:", error);
@@ -83,7 +85,7 @@ export default function PaymentModal({ cartEmpty, reloadCart }) {
   };
 
   const footerActions = (
-    <div className="flex justify-content-end gap-2 w-full">
+    <div className="flex justify-end gap-2 w-full">
       <ActionButton
         icon="pi pi-check"
         label="Pagar"
@@ -107,23 +109,23 @@ export default function PaymentModal({ cartEmpty, reloadCart }) {
         visible={visible}
         onHide={hideModal}
         header="Pago con tarjeta"
-        className="w-4"
+        className="w-[33vw]"
         footerActions={footerActions}
       >
-        <div className="flex flex-column gap-3">
+        <div className="flex flex-col gap-3">
 
-          <div className="flex flex-column gap-1">
-            <label>Ubicación / Dirección de envío *</label>
-            <InputText
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-foreground">Ubicación / Dirección de envío *</label>
+            <Input
               value={shippingAddress}
               onChange={(e) => setShippingAddress(e.target.value)}
               placeholder="Ej: Av. Los Laureles 123"
             />
           </div>
 
-          <div className="flex flex-column gap-1">
-            <label>Número de celular *</label>
-            <InputText
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-foreground">Número de celular *</label>
+            <Input
               value={cellphone}
               maxLength={9}
               onChange={(e) => {
@@ -142,9 +144,9 @@ export default function PaymentModal({ cartEmpty, reloadCart }) {
 
           </div>
 
-          <div className="flex flex-column gap-1">
-            <label>Número de tarjeta *</label>
-            <InputText
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-foreground">Número de tarjeta *</label>
+            <Input
               value={cardNumber}
               maxLength={16}
               onChange={(e) => {
@@ -163,9 +165,9 @@ export default function PaymentModal({ cartEmpty, reloadCart }) {
 
           </div>
 
-          <div className="flex flex-column gap-1">
-            <label>Nombre del titular *</label>
-            <InputText
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-foreground">Nombre del titular *</label>
+            <Input
               value={cardName}
               onChange={(e) => setCardName(e.target.value)}
               placeholder="Ej: Raul Sanchez"
@@ -173,9 +175,9 @@ export default function PaymentModal({ cartEmpty, reloadCart }) {
           </div>
 
           <div className="flex gap-3">
-            <div className="flex-1 flex flex-column gap-1">
-              <label>Expiración *</label>
-              <InputText
+            <div className="flex-1 flex flex-col gap-1">
+              <label className="text-xs font-medium text-foreground">Expiración *</label>
+              <Input
                 value={exp}
                 onChange={(e) => setExp(e.target.value)}
                 placeholder="MM/AA"
@@ -183,9 +185,9 @@ export default function PaymentModal({ cartEmpty, reloadCart }) {
               />
             </div>
 
-            <div className="flex-1 flex flex-column gap-1">
-              <label>CVV *</label>
-              <InputText
+            <div className="flex-1 flex flex-col gap-1">
+              <label className="text-xs font-medium text-foreground">CVV *</label>
+              <Input
                 value={cvv}
                 maxLength={3}
                 onChange={(e) => setCvv(e.target.value)}
