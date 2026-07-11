@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import IconLogo from "@/assets/icons/icon.svg";
+import IconLogoLight from "@/assets/icons/icon-light.svg";
 
 export default function Login() {
   const { login, token, accesses } = useAuth();
@@ -121,7 +122,7 @@ export default function Login() {
         <div className="max-w-md w-full relative z-10 flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <div className="bg-primary-foreground/10 p-2.5 rounded-xl backdrop-blur-sm border border-primary-foreground/10 shrink-0">
-              <img alt="Boran Logo" src={IconLogo} className="size-9" />
+              <img alt="Boran Logo" src={IconLogoLight} className="size-9" />
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-xl font-bold tracking-wider text-primary-foreground">BORAN S.A.C.</span>
