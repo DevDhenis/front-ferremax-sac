@@ -223,7 +223,7 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
 
         <Field label="Categoría *" htmlFor="product_category_id">
           <Select
-            items={categories.map((c) => ({ label: c.nombre, value: c.id }))}
+            items={categories.map((c) => ({ label: c.name, value: c.id }))}
             value={formData.product_category_id === "" ? null : formData.product_category_id}
             onValueChange={(v) => handleInputChange("product_category_id", v)}
           >
@@ -233,7 +233,7 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
             <SelectContent>
               {categories.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
-                  {cat.nombre}
+                  {cat.name}
                 </SelectItem>
               ))}
             </SelectContent>

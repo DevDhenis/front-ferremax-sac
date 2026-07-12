@@ -10,7 +10,7 @@ export default function useInventoryReport() {
     const tableData = products.map((p) => [
       p.codigo_interno,
       p.nombre,
-      p.category?.nombre || "",
+      p.category?.name || "",
       p.stock,
       p.cantidad_minima,
     ]);

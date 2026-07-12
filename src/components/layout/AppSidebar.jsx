@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/services/auth/authContext";
+import ProfileModal from "@/components/profile/ProfileModal";
 import IconLogo from "@/assets/icons/icon.svg";
 import {
   Sidebar,
@@ -35,6 +37,7 @@ import {
   ChevronRight,
   ChevronsUpDown,
   LogOut,
+  UserRound,
 } from "lucide-react";
 
 // El tamaño lo controla SidebarMenuButton ([&_svg]:size-4), no hace falta fijarlo aquí.
@@ -57,12 +60,14 @@ export default function AppSidebar() {
   const location = useLocation();
   const { toggleSidebar, state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const initials = (user?.username || "U").slice(0, 2).toUpperCase();
+  const userImage = user?.person?.image;
   const userAvatar = (
     <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-sidebar-border bg-sidebar-accent">
-      {user?.person?.imagen ? (
-        <img src={user.person.imagen} alt="" className="size-full object-cover" />
+      {userImage ? (
+        <img src={userImage} alt="" className="size-full object-cover" />
       ) : (
         <span className="text-xs font-semibold text-sidebar-accent-foreground">
           {initials}
@@ -100,12 +105,12 @@ export default function AppSidebar() {
                 <SidebarMenuItem key={acc.path}>
                   <SidebarMenuButton
                     isActive={location.pathname === acc.path}
-                    tooltip={acc.nombre}
+                    tooltip={acc.name}
                     render={<NavLink to={acc.path} />}
                     className="group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:h-9 group-data-[collapsible=icon]:justify-center"
                   >
                     {getLucideIcon(acc.icon)}
-                    <span className="group-data-[collapsible=icon]:hidden">{acc.nombre}</span>
+                    <span className="group-data-[collapsible=icon]:hidden">{acc.name}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -156,6 +161,11 @@ export default function AppSidebar() {
                   </div>
                 </div>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setProfileOpen(true)}>
+                  <UserRound />
+                  Mi perfil
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => logout()}
                   className="text-destructive hover:bg-destructive-bg hover:text-destructive focus-visible:bg-destructive-bg focus-visible:text-destructive"
@@ -184,6 +194,8 @@ export default function AppSidebar() {
           <ChevronLeft className="size-4" />
         )}
       </button>
+
+      <ProfileModal visible={profileOpen} onHide={() => setProfileOpen(false)} />
     </Sidebar>
   );
 }

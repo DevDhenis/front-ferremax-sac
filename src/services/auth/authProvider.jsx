@@ -117,8 +117,14 @@ const AuthProvider = ({ children }) => {
     navigate("/login");
   };
 
+  // Merge fresh user data (e.g. after editing the profile) so the sidebar avatar
+  // and name refresh immediately; the effect above persists it to localStorage.
+  const updateUser = (updatedUser) => {
+    setUser((prev) => ({ ...prev, ...updatedUser }));
+  };
+
   return (
-    <AuthContext.Provider value={{ token, login, logout, http, user, accesses, loading }}>
+    <AuthContext.Provider value={{ token, login, logout, updateUser, http, user, accesses, loading }}>
       {children}
     </AuthContext.Provider>
   );

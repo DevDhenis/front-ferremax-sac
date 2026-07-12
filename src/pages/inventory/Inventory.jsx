@@ -39,7 +39,7 @@ export default function Inventory() {
             const filtered = productos.filter(product =>
                 product.codigo_interno.toLowerCase().includes(searchValue.toLowerCase()) ||
                 product.nombre.toLowerCase().includes(searchValue.toLowerCase()) ||
-                product.category?.nombre.toLowerCase().includes(searchValue.toLowerCase()) ||
+                product.category?.name.toLowerCase().includes(searchValue.toLowerCase()) ||
                 product.descripcion?.toLowerCase().includes(searchValue.toLowerCase())
             );
             setFilteredProducts(filtered);
@@ -93,7 +93,7 @@ export default function Inventory() {
         const data = rows.map((p) => [
             p.codigo_interno,
             p.nombre,
-            p.category?.nombre ?? "",
+            p.category?.name ?? "",
             Number(p.pre_uni).toFixed(2),
             Number(p.pre_uni_may).toFixed(2),
             parseFloat(p.stock),

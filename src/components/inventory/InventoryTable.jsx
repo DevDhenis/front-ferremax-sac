@@ -51,9 +51,9 @@ export default function InventoryTable({
     },
     {
       id: "categoria",
-      accessorFn: (r) => r.category?.nombre ?? "",
+      accessorFn: (r) => r.category?.name ?? "",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Categoría" />,
-      cell: ({ row }) => <StatusBadge tone="muted">{row.original.category?.nombre}</StatusBadge>,
+      cell: ({ row }) => <StatusBadge tone="muted">{row.original.category?.name}</StatusBadge>,
     },
     {
       accessorKey: "pre_uni",
