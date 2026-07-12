@@ -13,7 +13,7 @@ export default function CategoryModal({ visible, onHide }) {
   const { http } = useAuth();
   const { showToast } = useToast();
   const [categories, setCategories] = useState([]);
-  const [formData, setFormData] = useState({ nombre: "", descripcion: "" });
+  const [formData, setFormData] = useState({ name: "", description: "" });
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
@@ -32,12 +32,12 @@ export default function CategoryModal({ visible, onHide }) {
   };
 
   const resetForm = () => {
-    setFormData({ nombre: "", descripcion: "" });
+    setFormData({ name: "", description: "" });
     setEditingId(null);
   };
 
   const handleCreateCategory = async () => {
-    if (!formData.nombre.trim()) {
+    if (!formData.name.trim()) {
       showToast("error", "Error", "El nombre es obligatorio");
       return;
     }
@@ -60,8 +60,8 @@ export default function CategoryModal({ visible, onHide }) {
 
   const handleEdit = (category) => {
     setFormData({
-      nombre: category.nombre,
-      descripcion: category.descripcion || "",
+      name: category.name,
+      description: category.description || "",
     });
     setEditingId(category.id);
   };
@@ -85,19 +85,19 @@ export default function CategoryModal({ visible, onHide }) {
 
   const columns = [
     {
-      accessorKey: "nombre",
+      accessorKey: "name",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
       cell: ({ row }) => (
-        <span className="font-medium text-foreground">{row.original.nombre}</span>
+        <span className="font-medium text-foreground">{row.original.name}</span>
       ),
     },
     {
-      accessorKey: "descripcion",
+      accessorKey: "description",
       header: "Descripción",
       enableSorting: false,
       cell: ({ row }) => (
         <span className="text-muted-foreground text-xs line-clamp-2">
-          {row.original.descripcion || "Sin descripción"}
+          {row.original.description || "Sin descripción"}
         </span>
       ),
     },
@@ -151,7 +151,7 @@ export default function CategoryModal({ visible, onHide }) {
         icon={editingId ? "pi pi-check" : "pi pi-plus"}
         color="success"
         onClick={handleCreateCategory}
-        disabled={!formData.nombre.trim() || loading}
+        disabled={!formData.name.trim() || loading}
         loading={loading}
       />
     </div>
@@ -183,8 +183,8 @@ export default function CategoryModal({ visible, onHide }) {
                 </label>
                 <Input
                   id="nombre"
-                  value={formData.nombre}
-                  onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ej: Herramientas eléctricas"
                   className="bg-card"
                 />
@@ -196,9 +196,9 @@ export default function CategoryModal({ visible, onHide }) {
                 </label>
                 <Textarea
                   id="descripcion"
-                  value={formData.descripcion}
+                  value={formData.description}
                   onChange={(e) =>
-                    setFormData({ ...formData, descripcion: e.target.value })
+                    setFormData({ ...formData, description: e.target.value })
                   }
                   placeholder="Descripción de la categoría (opcional)"
                   rows={3}
@@ -235,7 +235,7 @@ export default function CategoryModal({ visible, onHide }) {
         description={
           <>
             ¿Seguro que deseas eliminar la categoría{" "}
-            <span className="font-semibold text-foreground">“{categoryToDelete?.nombre}”</span>?
+            <span className="font-semibold text-foreground">“{categoryToDelete?.name}”</span>?
             Esta acción no se puede deshacer.
           </>
         }

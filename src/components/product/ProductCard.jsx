@@ -51,7 +51,7 @@ export default function ProductCard({ producto, onAddToCart }) {
       {/* Contenido */}
       <div className="p-4 flex flex-col flex-1 gap-1.5">
         <span className="text-[10px] uppercase font-semibold tracking-[0.16em] text-muted-foreground truncate">
-          {producto.category?.nombre}
+          {producto.category?.name}
         </span>
 
         <h3 className="text-sm font-bold text-foreground line-clamp-2 leading-snug m-0">

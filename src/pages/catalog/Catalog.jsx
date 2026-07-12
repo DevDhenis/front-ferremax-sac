@@ -173,7 +173,7 @@ export default function Catalog() {
                       ? "Todos los productos"
                       : categorias.find(
                         (c) => c.id.toString() === categoriaSeleccionada
-                      )?.nombre}
+                      )?.name}
                   </h2>
                   <p className="text-xs text-muted-foreground m-0 mt-1">
                     <span className="font-spec font-semibold text-foreground">{productosFiltrados.length}</span>{" "}
@@ -241,7 +241,7 @@ export default function Catalog() {
                         ? "No hay productos disponibles en el catálogo por ahora."
                         : `No hay productos en la categoría "${categorias.find(
                           (c) => c.id.toString() === categoriaSeleccionada
-                        )?.nombre}". Elige otra desde el panel lateral.`}
+                        )?.name}". Elige otra desde el panel lateral.`}
                   </p>
                 </div>
               )}

@@ -51,7 +51,7 @@ export default function CategorySidebar({
               >
                 <div className="flex items-start gap-2 text-left">
                   <Tag className="size-3.5 mt-0.5 shrink-0" />
-                  <span className="leading-tight">{categoria.nombre}</span>
+                  <span className="leading-tight">{categoria.name}</span>
                 </div>
                 <span className={`font-spec text-xs px-2 py-0.5 rounded-full shrink-0 ml-2 ${
                   isSelected
@@ -117,7 +117,7 @@ export default function CategorySidebar({
                     : "bg-card text-muted-foreground border border-border hover:bg-secondary"
                 }`}
               >
-                <span>{categoria.nombre}</span>
+                <span>{categoria.name}</span>
                 <span className={`font-spec text-[10px] px-1.5 py-0.2 rounded-full ${
                   isSelected
                     ? "bg-primary-foreground/20 text-primary-foreground"
