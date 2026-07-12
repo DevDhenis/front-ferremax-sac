@@ -122,10 +122,10 @@ export default function Login() {
         <div className="max-w-md w-full relative z-10 flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <div className="bg-primary-foreground/10 p-2.5 rounded-xl backdrop-blur-sm border border-primary-foreground/10 shrink-0">
-              <img alt="Boran Logo" src={IconLogoLight} className="size-9" />
+              <img alt="Ferremax Logo" src={IconLogoLight} className="size-9" />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-xl font-bold tracking-wider text-primary-foreground">BORAN S.A.C.</span>
+              <span className="text-xl font-bold tracking-wider text-primary-foreground">FERREMAX S.A.C.</span>
               <span className="text-xs text-primary-foreground/60 tracking-wider">SISTEMA DE GESTIÓN</span>
             </div>
           </div>
@@ -158,8 +158,8 @@ export default function Login() {
         <div className="w-full max-w-sm flex flex-col gap-6">
           <div className="flex flex-col gap-2 text-left">
             <div className="flex items-center gap-2 md:hidden mb-4">
-              <img alt="Boran Logo" src={IconLogo} className="size-8" />
-              <span className="text-lg font-bold text-foreground tracking-wider">BORAN S.A.C.</span>
+              <img alt="Ferremax Logo" src={IconLogo} className="size-8" />
+              <span className="text-lg font-bold text-foreground tracking-wider">FERREMAX S.A.C.</span>
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-foreground">
               Iniciar Sesión

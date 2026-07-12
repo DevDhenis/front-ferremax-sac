@@ -12,7 +12,7 @@ export default function PrivateRoute({ children }) {
   if (loading) {
     return (
       <div className="flex h-screen w-screen flex-col items-center justify-center gap-5 bg-background">
-        <img src={IconLogo} alt="Boran" className="size-12 animate-pulse" />
+        <img src={IconLogo} alt="Ferremax" className="size-12 animate-pulse" />
         <div className="flex items-center gap-2 text-muted-foreground">
           <Loader2 className="size-4 animate-spin text-primary" />
           <span className="text-sm">Cargando…</span>

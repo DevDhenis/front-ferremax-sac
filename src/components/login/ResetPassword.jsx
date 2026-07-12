@@ -75,8 +75,8 @@ export default function ResetPassword() {
       <div className="w-full max-w-md bg-card border border-border shadow-md rounded-xl p-6 sm:p-8 flex flex-col gap-6 relative z-10">
         <div className="flex flex-col items-center text-center gap-4">
           <div className="flex items-center gap-2">
-            <img alt="Boran Logo" src={IconLogo} className="size-8" />
-            <span className="text-lg font-bold text-foreground tracking-wider">BORAN S.A.C.</span>
+            <img alt="Ferremax Logo" src={IconLogo} className="size-8" />
+            <span className="text-lg font-bold text-foreground tracking-wider">FERREMAX S.A.C.</span>
           </div>
 
           <div className="bg-primary/5 p-3 rounded-full border border-primary/10 text-primary shrink-0 mt-2">

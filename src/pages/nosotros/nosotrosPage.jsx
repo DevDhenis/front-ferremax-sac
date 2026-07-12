@@ -18,7 +18,7 @@ export default function NosotrosPage() {
                 <div className="hero-radial-light"></div>
 
                 <div className="hero-content">
-                    <h1 className="hero-title">BORAN S.A.C.</h1>
+                    <h1 className="hero-title">FERREMAX S.A.C.</h1>
                     <p className="hero-subtitle">
                         Ingeniería, innovación y confianza para construir el futuro.
                     </p>
@@ -36,7 +36,7 @@ export default function NosotrosPage() {
                         <div className="intro-text">
                             <p>
                                 Somos una empresa peruana con un legado construido sobre
-                                calidad, innovación y servicio. A lo largo de los años, BORAN
+                                calidad, innovación y servicio. A lo largo de los años, FERREMAX
                                 S.A.C. se ha consolidado como un aliado estratégico para
                                 proyectos industriales, comerciales y residenciales.
                             </p>
@@ -175,7 +175,7 @@ export default function NosotrosPage() {
                             <div className="info-card">
                                 <Mail className="size-6 text-primary mb-1" />
                                 <h4>Correo</h4>
-                                <p>boransac2@gmail.com</p>
+                                <p>ferremaxsac2@gmail.com</p>
                             </div>
 
                             <div className="info-card">

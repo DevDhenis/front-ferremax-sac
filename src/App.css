@@ -2,7 +2,7 @@
   background-color: rgb(247, 244, 244);
 }
 
-/* 🎨 Estilos institucionales BORAN S.A.C. */
+/* 🎨 Estilos institucionales FERREMAX S.A.C. */
 
 /* Fuente principal y color base */
 body {
@@ -130,7 +130,7 @@ span {
 .nosotros-page .header .title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #004c97; /* Azul institucional BORAN */
+  color: #004c97; /* Azul institucional FERREMAX */
   transition: color 0.3s ease;
 }
 
