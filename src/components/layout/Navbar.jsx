@@ -10,7 +10,7 @@ export default function Navbar() {
         <SidebarTrigger className="size-9 text-muted-foreground hover:text-foreground md:hidden" />
         {/* En desktop el sidebar ya muestra la marca; aquí solo aparece en móvil */}
         <span className="text-sm font-semibold text-foreground md:hidden">
-          BORAN S.A.C.
+          FERREMAX S.A.C.
         </span>
       </div>
 

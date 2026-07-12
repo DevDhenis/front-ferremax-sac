@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 export default function Header({ title = "", subtitle = "", children = "" }) {
   useEffect(() => {
-    document.title = `BORAN S.A.C - ${title}`;
+    document.title = `FERREMAX S.A.C - ${title}`;
   }, [title]);
 
   return (

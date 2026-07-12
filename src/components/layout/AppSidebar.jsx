@@ -79,10 +79,10 @@ export default function AppSidebar() {
           to="/catalogo"
           className="flex items-center gap-2 overflow-hidden group-data-[collapsible=icon]:justify-center"
         >
-          <img alt="Boran Logo" src={IconLogo} className="size-8 shrink-0" />
+          <img alt="Ferremax Logo" src={IconLogo} className="size-8 shrink-0" />
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="truncate text-sm font-semibold tracking-tight text-sidebar-foreground">
-              BORAN S.A.C.
+              FERREMAX S.A.C.
             </span>
             <span className="truncate text-xs text-muted-foreground">
               Sistema de Gestión
