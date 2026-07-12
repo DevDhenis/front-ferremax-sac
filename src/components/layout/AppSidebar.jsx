@@ -65,7 +65,7 @@ export default function AppSidebar() {
   const initials = (user?.username || "U").slice(0, 2).toUpperCase();
   const userImage = user?.person?.image;
   const userAvatar = (
-    <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-sidebar-border bg-sidebar-accent">
+    <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-sidebar-border bg-sidebar-accent">
       {userImage ? (
         <img src={userImage} alt="" className="size-full object-cover" />
       ) : (
