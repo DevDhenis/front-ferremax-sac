@@ -94,14 +94,23 @@ export default function Login() {
       login(data.token, data.user);
       showToast('success', 'Bienvenido', 'Inicio de sesión exitoso');
     } catch (err) {
+      const response = err.response?.data;
+
+      // 403 con requires_verification: la cuenta existe pero falta confirmar el correo.
+      if (err.response?.status === 403 && response?.requires_verification) {
+        showToast('warn', 'Verifica tu correo', 'Tu cuenta aún no está verificada. Ingresa el código que te enviamos.');
+        navigate(`/verification?email=${encodeURIComponent(email)}&type=signUp`);
+        return;
+      }
+
       let errorMessage = 'Error de conexión o desconocido';
 
-      if (err.response && err.response.data) {
-        if (err.response.data.errors && err.response.data.errors.length > 0) {
-          errorMessage = err.response.data.errors[0].error;
+      if (response) {
+        if (response.errors && response.errors.length > 0) {
+          errorMessage = response.errors[0].error;
         }
-        else if (err.response.data.message) {
-          errorMessage = err.response.data.message;
+        else if (response.message) {
+          errorMessage = response.message;
         }
       }
 

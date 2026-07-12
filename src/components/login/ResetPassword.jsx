@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/services/auth/authContext";
-import { useToast } from "@/context/ToastContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Key, ArrowLeft } from "lucide-react";
@@ -11,7 +10,6 @@ export default function ResetPassword() {
   const location = useLocation();
   const { email, code } = location.state || {};
   const { http } = useAuth();
-  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -49,7 +47,7 @@ export default function ResetPassword() {
       };
 
       await http.post("auth/reset-password", payload);
-      showToast("success", "Contraseña restablecida", "Tu contraseña ha sido actualizada.");
+      // El interceptor de axios ya muestra el toast de éxito.
       navigate("/login");
     } catch (err) {
       console.log('Error:', err.response?.data);

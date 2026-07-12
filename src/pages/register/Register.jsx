@@ -10,14 +10,14 @@ import IconLogo from "@/assets/icons/icon.svg";
 import IconLogoLight from "@/assets/icons/icon-light.svg";
 
 export default function Register() {
-  const { login, token, accesses } = useAuth();
+  const { token, accesses } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    nombres: "",
-    apellido_paterno: "",
-    apellido_materno: "",
-    direccion: "",
+    first_name: "",
+    last_name: "",
+    second_last_name: "",
+    address: "",
     username: "",
     email: "",
     password: "",
@@ -47,9 +47,9 @@ export default function Register() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.nombres) newErrors.nombres = "Los nombres son obligatorios";
-    if (!formData.apellido_paterno) newErrors.apellido_paterno = "El apellido paterno es obligatorio";
-    if (!formData.apellido_materno) newErrors.apellido_materno = "El apellido materno es obligatorio";
+    if (!formData.first_name) newErrors.first_name = "Los nombres son obligatorios";
+    if (!formData.last_name) newErrors.last_name = "El apellido paterno es obligatorio";
+    if (!formData.second_last_name) newErrors.second_last_name = "El apellido materno es obligatorio";
     if (!formData.username) newErrors.username = "El nombre de usuario es obligatorio";
 
     if (!formData.email) {
@@ -78,9 +78,9 @@ export default function Register() {
     setErrors({});
 
     try {
-      const { data } = await axios.post(`${url}auth/register`, formData);
-      login(data.token);
-      showToast("success", "Registro exitoso", "Tu cuenta ha sido creada.");
+      // No autenticamos al registrar: el usuario debe confirmar su correo primero.
+      await axios.post(`${url}auth/register`, formData);
+      showToast("success", "Registro exitoso", "Revisa tu correo para confirmar tu cuenta.");
       navigate(`/verification?email=${encodeURIComponent(formData.email)}&type=signUp`);
     } catch (err) {
       const response = err.response?.data;
@@ -167,13 +167,13 @@ export default function Register() {
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-foreground/80">Nombres</label>
                 <Input
-                  value={formData.nombres}
-                  onChange={(e) => handleChange("nombres", e.target.value)}
+                  value={formData.first_name}
+                  onChange={(e) => handleChange("first_name", e.target.value)}
                   placeholder="Ej. Juan"
-                  className={`h-10 ${errors.nombres ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20" : ""}`}
+                  className={`h-10 ${errors.first_name ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20" : ""}`}
                   disabled={loading}
                 />
-                {errors.nombres && <span className="text-xs text-destructive font-medium">{errors.nombres}</span>}
+                {errors.first_name && <span className="text-xs text-destructive font-medium">{errors.first_name}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -191,32 +191,32 @@ export default function Register() {
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-foreground/80">Apellido paterno</label>
                 <Input
-                  value={formData.apellido_paterno}
-                  onChange={(e) => handleChange("apellido_paterno", e.target.value)}
+                  value={formData.last_name}
+                  onChange={(e) => handleChange("last_name", e.target.value)}
                   placeholder="Ej. Gómez"
-                  className={`h-10 ${errors.apellido_paterno ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20" : ""}`}
+                  className={`h-10 ${errors.last_name ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20" : ""}`}
                   disabled={loading}
                 />
-                {errors.apellido_paterno && <span className="text-xs text-destructive font-medium">{errors.apellido_paterno}</span>}
+                {errors.last_name && <span className="text-xs text-destructive font-medium">{errors.last_name}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-foreground/80">Apellido materno</label>
                 <Input
-                  value={formData.apellido_materno}
-                  onChange={(e) => handleChange("apellido_materno", e.target.value)}
+                  value={formData.second_last_name}
+                  onChange={(e) => handleChange("second_last_name", e.target.value)}
                   placeholder="Ej. Pérez"
-                  className={`h-10 ${errors.apellido_materno ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20" : ""}`}
+                  className={`h-10 ${errors.second_last_name ? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20" : ""}`}
                   disabled={loading}
                 />
-                {errors.apellido_materno && <span className="text-xs text-destructive font-medium">{errors.apellido_materno}</span>}
+                {errors.second_last_name && <span className="text-xs text-destructive font-medium">{errors.second_last_name}</span>}
               </div>
 
               <div className="flex flex-col gap-1.5 sm:col-span-2">
                 <label className="text-xs font-semibold text-foreground/80">Dirección (Opcional)</label>
                 <Input
-                  value={formData.direccion}
-                  onChange={(e) => handleChange("direccion", e.target.value)}
+                  value={formData.address}
+                  onChange={(e) => handleChange("address", e.target.value)}
                   placeholder="Ej. Av. Larco 123, Lima"
                   className="h-10"
                   disabled={loading}
