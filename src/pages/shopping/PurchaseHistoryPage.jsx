@@ -35,8 +35,13 @@ export default function PurchaseHistoryPage() {
 
   useEffect(() => {
     const cargar = async () => {
-      const data = await handleGetMySales();
-      setCompras(data || []);
+      try {
+        const data = await handleGetMySales();
+        setCompras(data || []);
+      } catch {
+        // Sin compras o usuario no-cliente: se muestra el estado vacío.
+        setCompras([]);
+      }
     };
     cargar();
   }, []);
@@ -120,8 +125,8 @@ export default function PurchaseHistoryPage() {
                   {/* Resumen del pedido */}
                   <div className="flex items-center gap-3 my-4 py-3 border-y border-border/50">
                     <Avatar
-                      src={primerItem?.product?.imagen}
-                      fallback={primerItem?.product?.nombre?.charAt(0) || "?"}
+                      src={primerItem?.product?.image}
+                      fallback={primerItem?.product?.name?.charAt(0) || "?"}
                       className="size-14 rounded-lg bg-secondary/40"
                     />
                     <div className="min-w-0">
@@ -129,7 +134,7 @@ export default function PurchaseHistoryPage() {
                         <span className="font-spec">{totalItems}</span> producto(s)
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
-                        {primerItem?.product?.nombre}
+                        {primerItem?.product?.name}
                         {totalItems > 1 ? " y más…" : ""}
                       </div>
                       <div className="font-spec text-success font-bold mt-1">
