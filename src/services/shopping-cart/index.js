@@ -12,9 +12,9 @@ export const addItemToCart = async (http, productId) => {
   return response.data;
 };
 
-export const updateCartItemQuantity = async (http, itemId, cantidad) => {
+export const updateCartItemQuantity = async (http, itemId, quantity) => {
   const response = await http.put(`shopping-cart/items/${itemId}`, {
-    cantidad,
+    quantity,
   });
   return response.data;
 };

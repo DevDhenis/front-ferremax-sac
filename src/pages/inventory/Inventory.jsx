@@ -37,10 +37,10 @@ export default function Inventory() {
             setFilteredProducts(productos);
         } else {
             const filtered = productos.filter(product =>
-                product.codigo_interno.toLowerCase().includes(searchValue.toLowerCase()) ||
-                product.nombre.toLowerCase().includes(searchValue.toLowerCase()) ||
+                product.internal_code.toLowerCase().includes(searchValue.toLowerCase()) ||
+                product.name.toLowerCase().includes(searchValue.toLowerCase()) ||
                 product.category?.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-                product.descripcion?.toLowerCase().includes(searchValue.toLowerCase())
+                product.description?.toLowerCase().includes(searchValue.toLowerCase())
             );
             setFilteredProducts(filtered);
         }
@@ -91,16 +91,16 @@ export default function Inventory() {
             "Stock", "Unidad", "En promoción", "Descuento", "Estado",
         ];
         const data = rows.map((p) => [
-            p.codigo_interno,
-            p.nombre,
+            p.internal_code,
+            p.name,
             p.category?.name ?? "",
-            Number(p.pre_uni).toFixed(2),
-            Number(p.pre_uni_may).toFixed(2),
+            Number(p.unit_price).toFixed(2),
+            Number(p.wholesale_unit_price).toFixed(2),
             parseFloat(p.stock),
-            p.unit?.abreviatura ?? "",
-            p.en_promocion ? "Sí" : "No",
-            `${p.descuento}%`,
-            p.estado_registro === "A" ? "Activo" : "Inactivo",
+            p.unit?.abbreviation ?? "",
+            p.on_promotion ? "Sí" : "No",
+            `${p.discount}%`,
+            p.status === "A" ? "Activo" : "Inactivo",
         ]);
 
         const esc = (v) => {
@@ -154,7 +154,7 @@ export default function Inventory() {
                 description={
                     <>
                         ¿Seguro que deseas eliminar el producto{" "}
-                        <span className="font-semibold text-foreground">“{productToDelete?.nombre}”</span>?
+                        <span className="font-semibold text-foreground">“{productToDelete?.name}”</span>?
                         Esta acción no se puede deshacer.
                     </>
                 }

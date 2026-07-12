@@ -54,17 +54,17 @@ export default function RolesListPage() {
 
   const columns = [
     {
-      accessorKey: "nombre",
+      accessorKey: "name",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
       cell: ({ row }) => (
-        <span className="font-medium text-foreground">{row.original.nombre}</span>
+        <span className="font-medium text-foreground">{row.original.name}</span>
       ),
     },
     {
-      accessorKey: "descripcion",
+      accessorKey: "description",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
       cell: ({ row }) => (
-        <span className="text-muted-foreground">{row.original.descripcion}</span>
+        <span className="text-muted-foreground">{row.original.description}</span>
       ),
     },
     {
@@ -145,7 +145,7 @@ export default function RolesListPage() {
         description={
           <>
             ¿Seguro que deseas eliminar el rol{" "}
-            <span className="font-semibold text-foreground">“{roleToDelete?.nombre}”</span>?
+            <span className="font-semibold text-foreground">“{roleToDelete?.name}”</span>?
             Esta acción no se puede deshacer.
           </>
         }

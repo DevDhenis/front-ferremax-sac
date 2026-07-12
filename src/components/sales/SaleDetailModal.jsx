@@ -174,10 +174,10 @@ export default function SaleDetailModal({ saleId, onStatusUpdated }) {
                 {sale.items.map((item) => {
                   const prod = item.product;
                   const price = Number(item.price);
-                  const discount = Number(prod.descuento || 0);
+                  const discount = Number(prod.discount || 0);
                   const qty = Number(item.quantity);
                   const finalPrice = discount > 0 ? price - (price * discount) / 100 : price;
-                  const unitName = prod.unit?.abreviatura || "";
+                  const unitName = prod.unit?.abbreviation || "";
 
                   return (
                     <div
@@ -185,18 +185,18 @@ export default function SaleDetailModal({ saleId, onStatusUpdated }) {
                       className="flex gap-3 p-3 rounded-xl border border-border/80 bg-card"
                     >
                       <img
-                        src={prod.imagen}
-                        alt={prod.nombre}
+                        src={prod.image}
+                        alt={prod.name}
                         className="size-16 shrink-0 rounded-lg border border-border/60 bg-secondary/30 object-contain p-1"
                       />
 
                       <div className="flex-1 min-w-0">
                         <h5 className="m-0 text-sm font-semibold text-foreground truncate">
-                          {prod.nombre}
+                          {prod.name}
                         </h5>
-                        {prod.descripcion && (
+                        {prod.description && (
                           <p className="m-0 mt-0.5 text-xs text-muted-foreground line-clamp-1">
-                            {prod.descripcion}
+                            {prod.description}
                           </p>
                         )}
 

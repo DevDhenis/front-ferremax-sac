@@ -8,11 +8,11 @@ export default function useInventoryReport() {
     doc.text("Reporte de Stock", 14, 15);
 
     const tableData = products.map((p) => [
-      p.codigo_interno,
-      p.nombre,
+      p.internal_code,
+      p.name,
       p.category?.name || "",
       p.stock,
-      p.cantidad_minima,
+      p.minimum_quantity,
     ]);
 
     autoTable(doc, {

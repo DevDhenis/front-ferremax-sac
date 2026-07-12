@@ -81,8 +81,8 @@ export default function Catalog() {
       const term = normalize(searchTerm);
 
       list = list.filter((p) => {
-        const nombre = normalize(p.nombre);
-        const descripcion = normalize(p.descripcion || "");
+        const nombre = normalize(p.name);
+        const descripcion = normalize(p.description || "");
         return nombre.includes(term) || descripcion.includes(term);
       });
     }
@@ -113,7 +113,7 @@ export default function Catalog() {
   const addToCart = async (producto) => {
     try {
       await addProductToCart(producto.id);
-      showToast("success", "Carrito", `${producto.nombre} se agregó a tu carrito.`);
+      showToast("success", "Carrito", `${producto.name} se agregó a tu carrito.`);
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
@@ -134,7 +134,7 @@ export default function Catalog() {
         </div>
       </div>
 
-      <PromoCarousel productos={productos.filter(p => p.en_promocion)} />
+      <PromoCarousel productos={productos.filter(p => p.on_promotion)} />
 
       <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
         {/* Sidebar Sticky en Desktop, Horizontal en Móvil */}

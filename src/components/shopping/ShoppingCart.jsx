@@ -28,15 +28,15 @@ export default function ShoppingCart({ onCheckout }) {
       (rawItems || []).map((item) => ({
         item_id: item.id,
         id: item.product.id,
-        nombre: item.product.nombre,
-        descripcion: item.product.descripcion,
-        imagen: item.product.imagen,
-        pre_uni: item.product.pre_uni,
-        descuento: item.product.descuento,
-        en_promocion: item.product.en_promocion,
+        nombre: item.product.name,
+        descripcion: item.product.description,
+        imagen: item.product.image,
+        pre_uni: item.product.unit_price,
+        descuento: item.product.discount,
+        en_promocion: item.product.on_promotion,
         stock: item.product.stock,
         unit: item.product.unit,
-        cantidad: round2(item.cantidad),
+        cantidad: round2(item.quantity),
       })),
     [rawItems]
   );
@@ -108,7 +108,7 @@ export default function ShoppingCart({ onCheckout }) {
   const saveEdit = async (item) => {
     if (editValue <= 0) return;
     const qty =
-      item.unit?.abreviatura === "u" ? Math.floor(editValue) : round2(editValue);
+      item.unit?.abbreviation === "u" ? Math.floor(editValue) : round2(editValue);
     await handleUpdateQuantity(item.item_id, qty);
     setEditingItemId(null);
     setEditValue(null);
@@ -210,7 +210,7 @@ export default function ShoppingCart({ onCheckout }) {
                             </p>
                           )}
                           <p className="m-0 mt-1 text-[11px] text-muted-foreground">
-                            {p.unit?.nombre} · Stock{" "}
+                            {p.unit?.name} · Stock{" "}
                             <span className="font-spec">{parseFloat(p.stock)}</span>
                           </p>
                         </div>
@@ -249,7 +249,7 @@ export default function ShoppingCart({ onCheckout }) {
                                 type="number"
                                 value={editValue ?? ""}
                                 min={1}
-                                step={p.unit?.abreviatura === "u" ? 1 : 0.01}
+                                step={p.unit?.abbreviation === "u" ? 1 : 0.01}
                                 onChange={(e) => {
                                   const v = e.target.value;
                                   setEditValue(v === "" ? null : Number(v));
@@ -257,7 +257,7 @@ export default function ShoppingCart({ onCheckout }) {
                                 className="font-spec h-8 rounded-r-none"
                               />
                               <span className="inline-flex items-center rounded-r-lg border border-l-0 border-input bg-muted px-2.5 text-xs font-bold text-muted-foreground">
-                                {p.unit?.abreviatura}
+                                {p.unit?.abbreviation}
                               </span>
                             </div>
                             <ActionButton
@@ -300,7 +300,7 @@ export default function ShoppingCart({ onCheckout }) {
                               </button>
                             </div>
                             <span className="text-[11px] text-muted-foreground">
-                              {p.unit?.abreviatura}
+                              {p.unit?.abbreviation}
                             </span>
                             <ActionButton
                               icon="pi pi-pencil"

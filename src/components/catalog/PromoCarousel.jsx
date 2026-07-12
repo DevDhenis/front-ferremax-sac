@@ -18,8 +18,8 @@ export default function PromoCarousel({ productos }) {
   if (!productos || productos.length === 0) return null;
 
   const template = (p) => {
-    const price = Number(p.pre_uni);
-    const discount = Number(p.descuento);
+    const price = Number(p.unit_price);
+    const discount = Number(p.discount);
     const finalPrice = price - (price * discount) / 100;
 
     return (
@@ -29,8 +29,8 @@ export default function PromoCarousel({ productos }) {
           {/* Imagen */}
           <div className="flex items-center justify-center shrink-0 size-24 rounded-lg bg-card border border-border/60 overflow-hidden p-2">
             <img
-              src={p.imagen}
-              alt={p.nombre}
+              src={p.image}
+              alt={p.name}
               className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover/card:scale-105 motion-reduce:transition-none motion-reduce:group-hover/card:scale-100"
             />
           </div>
@@ -43,7 +43,7 @@ export default function PromoCarousel({ productos }) {
                 {`-${discount}%`}
               </Badge>
               <span className="text-sm font-semibold text-foreground truncate">
-                {p.nombre}
+                {p.name}
               </span>
             </div>
 
@@ -57,7 +57,7 @@ export default function PromoCarousel({ productos }) {
             </div>
 
             <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-              {p.descripcion}
+              {p.description}
             </div>
           </div>
 

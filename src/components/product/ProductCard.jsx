@@ -1,15 +1,15 @@
 import { ShoppingCart } from "lucide-react";
 
 export default function ProductCard({ producto, onAddToCart }) {
-  const precio = parseFloat(producto.pre_uni);
-  const descuento = Number(producto.descuento) || 0;
-  const precioFinal = producto.en_promocion
+  const precio = parseFloat(producto.unit_price);
+  const descuento = Number(producto.discount) || 0;
+  const precioFinal = producto.on_promotion
     ? precio - (precio * descuento) / 100
     : precio;
 
   const stock = parseFloat(producto.stock);
-  const minimo = parseFloat(producto.cantidad_minima) || 0;
-  const unidad = producto.unit?.abreviatura ?? "u";
+  const minimo = parseFloat(producto.minimum_quantity) || 0;
+  const unidad = producto.unit?.abbreviation ?? "u";
 
   const tieneStock = stock > 0;
   const bajoStock = tieneStock && stock <= minimo;
@@ -30,10 +30,10 @@ export default function ProductCard({ producto, onAddToCart }) {
       <div className="relative bg-secondary/30 h-44 border-b border-border/50 shrink-0">
         {/* SKU: etiqueta tipo pick-label */}
         <span className="absolute top-3 left-3 z-10 font-spec text-[10px] tracking-wide text-muted-foreground bg-card/85 backdrop-blur-sm px-1.5 py-0.5 rounded border border-border/60">
-          {producto.codigo_interno}
+          {producto.internal_code}
         </span>
 
-        {producto.en_promocion && (
+        {producto.on_promotion && (
           <span className="absolute top-3 right-3 z-10 inline-flex items-center bg-destructive-bg text-destructive border border-destructive/20 font-spec text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">
             −{descuento}%
           </span>
@@ -41,8 +41,8 @@ export default function ProductCard({ producto, onAddToCart }) {
 
         <div className="h-full flex items-center justify-center p-5">
           <img
-            src={producto.imagen}
-            alt={producto.nombre}
+            src={producto.image}
+            alt={producto.name}
             className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
         </div>
@@ -55,11 +55,11 @@ export default function ProductCard({ producto, onAddToCart }) {
         </span>
 
         <h3 className="text-sm font-bold text-foreground line-clamp-2 leading-snug m-0">
-          {producto.nombre}
+          {producto.name}
         </h3>
 
         <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed m-0">
-          {producto.descripcion || "Sin descripción."}
+          {producto.description || "Sin descripción."}
         </p>
 
         {/* Pie: precio, stock y acción */}
@@ -68,7 +68,7 @@ export default function ProductCard({ producto, onAddToCart }) {
             <span className="font-spec text-xl font-bold text-foreground">
               S/ {precioFinal.toFixed(2)}
             </span>
-            {producto.en_promocion && (
+            {producto.on_promotion && (
               <span className="font-spec text-xs text-muted-foreground line-through">
                 S/ {precio.toFixed(2)}
               </span>
