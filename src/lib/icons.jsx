@@ -36,6 +36,7 @@ import {
   Mail,
   Clock,
   BarChart3,
+  RotateCcw,
 } from "lucide-react";
 
 /**
@@ -61,6 +62,7 @@ export const PI_TO_LUCIDE = {
   "pi-tag": Tag,
   "pi-th-large": LayoutGrid,
   "pi-chart-bar": BarChart3,
+  "pi-replay": RotateCcw,
   "pi-filter-list": ListFilter,
   "pi-save": Save,
   "pi-angle-left": ChevronLeft,

@@ -8,6 +8,7 @@ import Workers from "@/pages/workers/workers";
 import Inventory from "@/pages/inventory/Inventory";
 import NosotrosPage from "@/pages/nosotros/nosotrosPage";
 import SalesPage from "@/pages/sales/SalesPage";
+import ReturnsPage from "@/pages/returns/ReturnsPage";
 import PurchaseHistoryPage from "@/pages/shopping/PurchaseHistoryPage";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -47,6 +48,7 @@ export default function PrivateLayout() {
               <Route path="/acerca" element={<NosotrosPage />} />
               <Route path="/historial" element={<PurchaseHistoryPage />} />
               <Route path="/ventas" element={<SalesPage />} />
+              <Route path="/devoluciones" element={<ReturnsPage />} />
             </Routes>
           </main>
         </SidebarInset>

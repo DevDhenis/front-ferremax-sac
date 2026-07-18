@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, RotateCcw } from "lucide-react";
 import { useMySales } from "@/hooks/useMySales";
 import Header from "@/components/layout/Header";
 import Container from "@/components/layout/Container";
 import PurchaseHistory from "../../assets/images/purchase-history.png";
 import DetailPurchaseModal from "@/components/shopping/DetailPurchaseModal";
+import RequestReturnModal from "@/components/returns/RequestReturnModal";
+import ActionButton from "@/components/common/ActionButton";
 import { Avatar } from "@/components/ui/avatar";
 import StatusBadge from "@/components/common/StatusBadge";
 
@@ -32,18 +34,20 @@ function MetaBlock({ label, children }) {
 export default function PurchaseHistoryPage() {
   const { loading, handleGetMySales } = useMySales();
   const [compras, setCompras] = useState([]);
+  const [returnSale, setReturnSale] = useState(null);
+
+  const cargarCompras = async () => {
+    try {
+      const data = await handleGetMySales();
+      setCompras(data || []);
+    } catch {
+      // Sin compras o usuario no-cliente: se muestra el estado vacío.
+      setCompras([]);
+    }
+  };
 
   useEffect(() => {
-    const cargar = async () => {
-      try {
-        const data = await handleGetMySales();
-        setCompras(data || []);
-      } catch {
-        // Sin compras o usuario no-cliente: se muestra el estado vacío.
-        setCompras([]);
-      }
-    };
-    cargar();
+    cargarCompras();
   }, []);
 
   const formatDate = (dateString) => {
@@ -166,7 +170,15 @@ export default function PurchaseHistoryPage() {
                     </MetaBlock>
                   </div>
 
-                  <div className="flex justify-end mt-4">
+                  <div className="flex justify-end items-center gap-2 mt-4">
+                    {c.status === "delivered" && (
+                      <ActionButton
+                        label="Solicitar devolución"
+                        icon={RotateCcw}
+                        color="secondary"
+                        onClick={() => setReturnSale(c)}
+                      />
+                    )}
                     <DetailPurchaseModal sale={c} />
                   </div>
                 </div>
@@ -209,6 +221,13 @@ export default function PurchaseHistoryPage() {
           </div>
         </div>
       </div>
+
+      <RequestReturnModal
+        visible={!!returnSale}
+        onHide={() => setReturnSale(null)}
+        sale={returnSale}
+        onSubmitted={cargarCompras}
+      />
     </Container>
   );
 }
