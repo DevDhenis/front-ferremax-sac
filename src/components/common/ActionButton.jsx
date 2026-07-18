@@ -56,12 +56,13 @@ const ActionButton = ({
   const renderIcon = () => {
     if (!icon) return null;
     if (React.isValidElement(icon)) return icon;
-    if (typeof icon === 'function') {
-      const IconComp = icon;
-      return <IconComp />;
+    if (typeof icon === 'string') {
+      const IconComp = resolveIcon(icon);
+      return IconComp ? <IconComp /> : null;
     }
-    const IconComp = resolveIcon(icon);
-    return IconComp ? <IconComp /> : null;
+    // Lucide icons can be plain functions or forwardRef objects (both renderable).
+    const IconComp = icon;
+    return <IconComp />;
   };
 
   const content = (

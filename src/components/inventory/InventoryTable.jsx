@@ -1,3 +1,4 @@
+import { History } from "lucide-react";
 import ActionButton from "../common/ActionButton";
 import { Avatar } from "@/components/ui/avatar";
 import { DataTable } from "@/components/ui/data-table";
@@ -30,6 +31,7 @@ export default function InventoryTable({
   productos,
   onEditProduct,
   onDeleteProduct,
+  onViewKardex,
   onRefresh,
   loading = false,
 }) {
@@ -129,6 +131,13 @@ export default function InventoryTable({
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex gap-1.5 justify-end">
+          <ActionButton
+            icon={History}
+            color="secondary"
+            size="sm"
+            tooltip="Ver trazabilidad (kardex)"
+            onClick={() => onViewKardex?.(row.original)}
+          />
           <ActionButton
             icon="pi pi-pencil"
             color="warning"

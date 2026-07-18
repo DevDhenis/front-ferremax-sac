@@ -259,16 +259,19 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
           </Select>
         </Field>
 
-        <Field label="Stock *" htmlFor="stock">
+        <Field label="Stock (solo lectura)" htmlFor="stock">
           <Input
             id="stock"
             type="number"
-            min={0}
-            step="0.01"
-            value={formData.stock}
-            onChange={(e) => handleNumberChange("stock", e.target.value)}
-            className="h-9 bg-card font-spec"
+            value={product ? formData.stock : 0}
+            disabled
+            className="h-9 bg-muted/40 font-spec disabled:opacity-70 disabled:cursor-not-allowed"
           />
+          <span className="text-[11px] text-muted-foreground">
+            {product
+              ? "El stock se gestiona desde Inventario → Movimientos (kardex)."
+              : "El producto se crea en 0; carga su stock con un movimiento de Entrada."}
+          </span>
         </Field>
 
         <Field label="Cantidad mínima *" htmlFor="minimum_quantity">

@@ -1,11 +1,19 @@
 import { useState, useEffect } from "react";
+import { Package, ArrowLeftRight } from "lucide-react";
 import { useAuth } from "@/services/auth/authContext";
 import Container from "@/components/layout/Container";
 import InventoryHeader from "@/components/inventory/InventoryHeader";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import ProductFormModal from "@/components/inventory/ProductFormModal";
 import CategoryModal from "@/components/inventory/CategoryModal";
+import MovementsTab from "@/components/inventory/MovementsTab";
+import KardexModal from "@/components/inventory/KardexModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
+
+const TABS = [
+  { id: "productos", label: "Productos", icon: Package },
+  { id: "movimientos", label: "Movimientos", icon: ArrowLeftRight },
+];
 
 export default function Inventory() {
     const { http } = useAuth();
@@ -17,6 +25,8 @@ export default function Inventory() {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [productToDelete, setProductToDelete] = useState(null);
     const [searchValue, setSearchValue] = useState("");
+    const [activeTab, setActiveTab] = useState("productos");
+    const [kardexProduct, setKardexProduct] = useState(null);
 
     const getProducts = async () => {
         setLoading(true);
@@ -122,20 +132,50 @@ export default function Inventory() {
 
     return (
         <Container className="space-y-3">
-            <InventoryHeader
-                onAddClick={handleAddProduct}
-                onAddCategory={() => setCategoryVisible(true)}
-                searchValue={searchValue}
-                onSearchChange={handleSearchChange}
-                onGenerateReport={handleGenerateReport}
-            />
-            <InventoryTable
-                productos={filteredProducts}
-                onEditProduct={handleEditProduct}
-                onDeleteProduct={setProductToDelete}
-                onRefresh={getProducts}
-                loading={loading}
-            />
+            {/* Pestañas: Productos | Movimientos */}
+            <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card p-1">
+                {TABS.map((tab) => {
+                    const active = activeTab === tab.id;
+                    const Icon = tab.icon;
+                    return (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                                active
+                                    ? "bg-primary text-primary-foreground"
+                                    : "text-muted-foreground hover:text-foreground"
+                            }`}
+                        >
+                            <Icon className="size-4" />
+                            {tab.label}
+                        </button>
+                    );
+                })}
+            </div>
+
+            {activeTab === "productos" ? (
+                <>
+                    <InventoryHeader
+                        onAddClick={handleAddProduct}
+                        onAddCategory={() => setCategoryVisible(true)}
+                        searchValue={searchValue}
+                        onSearchChange={handleSearchChange}
+                        onGenerateReport={handleGenerateReport}
+                    />
+                    <InventoryTable
+                        productos={filteredProducts}
+                        onEditProduct={handleEditProduct}
+                        onDeleteProduct={setProductToDelete}
+                        onViewKardex={setKardexProduct}
+                        onRefresh={getProducts}
+                        loading={loading}
+                    />
+                </>
+            ) : (
+                <MovementsTab products={productos} onStockChange={getProducts} />
+            )}
             <ProductFormModal
                 visible={visible}
                 onHide={handleHideModal}
@@ -160,6 +200,12 @@ export default function Inventory() {
                 }
                 confirmLabel="Sí, eliminar"
                 onConfirm={confirmDelete}
+            />
+
+            <KardexModal
+                visible={!!kardexProduct}
+                onHide={() => setKardexProduct(null)}
+                product={kardexProduct}
             />
         </Container>
     );
