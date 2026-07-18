@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import AppSidebar from "../layout/AppSidebar";
 import Navbar from "../layout/Navbar";
+import Dashboard from "@/pages/dashboard/Dashboard";
 import Catalog from "@/pages/catalog/Catalog";
 import RolesListPage from "@/pages/roles/RolesListPage";
 import Workers from "@/pages/workers/workers";
@@ -30,7 +31,8 @@ export default function PrivateLayout() {
           {/* Dynamic Pages Area */}
           <main className="flex-1 overflow-auto bg-background">
             <Routes>
-              <Route path="/" element={<Navigate to="/catalogo" replace />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route
                 path="/catalogo"
                 element={

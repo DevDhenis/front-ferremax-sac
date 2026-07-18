@@ -35,6 +35,7 @@ import {
   Phone,
   Mail,
   Clock,
+  BarChart3,
 } from "lucide-react";
 
 /**
@@ -59,6 +60,7 @@ export const PI_TO_LUCIDE = {
   "pi-tags": Tags,
   "pi-tag": Tag,
   "pi-th-large": LayoutGrid,
+  "pi-chart-bar": BarChart3,
   "pi-filter-list": ListFilter,
   "pi-save": Save,
   "pi-angle-left": ChevronLeft,

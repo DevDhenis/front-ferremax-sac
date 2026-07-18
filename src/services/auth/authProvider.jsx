@@ -82,7 +82,10 @@ const AuthProvider = ({ children }) => {
       setAccesses(newUser.accesses || []);
 
       if (newUser.accesses && newUser.accesses.length > 0) {
-        const firstPath = newUser.accesses[0].path || "/";
+        // Land on the dashboard when the user can see it; otherwise keep the
+        // previous behaviour of using their first granted access.
+        const hasDashboard = newUser.accesses.some((a) => a.path === "/dashboard");
+        const firstPath = hasDashboard ? "/dashboard" : newUser.accesses[0].path || "/";
         navigate(firstPath);
       } else {
         navigate("/sin-permisos");
