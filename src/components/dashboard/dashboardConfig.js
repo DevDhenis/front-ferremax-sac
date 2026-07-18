@@ -53,12 +53,12 @@ export const formatDate = (iso) => {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
+  return d.toLocaleDateString("es-PE", { timeZone: "America/Lima", day: "2-digit", month: "short" });
 };
 
 // Short weekday+day for the revenue trend axis.
 export const formatTrendDate = (iso) => {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("es-PE", { day: "2-digit", month: "2-digit" });
+  return d.toLocaleDateString("es-PE", { timeZone: "America/Lima", day: "2-digit", month: "2-digit" });
 };
