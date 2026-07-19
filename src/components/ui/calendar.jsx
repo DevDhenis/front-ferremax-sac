@@ -12,9 +12,9 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
       classNames={{
         months: "relative",
         month: "space-y-2",
-        month_caption: "flex items-center justify-center h-9 relative",
-        caption_label: "text-sm font-semibold text-foreground",
-        nav: "absolute inset-x-0 top-0 flex items-center justify-between h-9 px-1",
+        month_caption: "flex items-center justify-center h-9",
+        caption_label: "text-sm font-semibold text-foreground pointer-events-none",
+        nav: "absolute inset-x-0 top-0 z-10 flex items-center justify-between h-9 px-1",
         button_previous:
           "size-7 inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-40",
         button_next:
