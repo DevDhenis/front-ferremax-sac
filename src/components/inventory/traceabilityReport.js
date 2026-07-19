@@ -49,9 +49,14 @@ const num = (n) => {
 
 // Label + direction for a movement (origin wins over direction).
 const movementLabel = (m) => {
-  if (m.origin === "sale") return "Venta";
-  if (m.origin === "sale_cancellation") return "Cancelación";
-  if (m.origin === "customer_return") return "Devolución";
+  const byOrigin = {
+    sale: "Venta",
+    sale_cancellation: "Cancelación",
+    customer_return: "Devolución",
+    purchase: "Compra",
+    supplier_return: "Dev. proveedor",
+  };
+  if (m.origin && byOrigin[m.origin]) return byOrigin[m.origin];
   return { inbound: "Entrada", outbound: "Salida", adjustment: "Ajuste" }[m.movement_type] ?? m.movement_type;
 };
 
@@ -113,8 +118,10 @@ const badgeStyle = (m) => {
   const map = {
     Entrada: C.success,
     Devolución: C.success,
+    Compra: C.success,
     Salida: C.destructive,
     Venta: C.destructive,
+    "Dev. proveedor": C.destructive,
     Cancelación: C.success,
     Ajuste: C.warning,
   };

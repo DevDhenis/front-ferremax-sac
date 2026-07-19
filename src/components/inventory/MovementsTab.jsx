@@ -16,14 +16,12 @@ import {
 } from "@/components/ui/select";
 import { useInventoryMovements } from "@/hooks/useInventoryMovements";
 import {
-  MOVEMENT_OPTIONS,
+  MOVEMENT_FILTERS,
   movementBadge,
   movementDirection,
   formatQty,
   formatDateTime,
 } from "./inventoryMovementConfig";
-
-const TYPE_FILTER = [{ value: "all", label: "Todos los tipos" }, ...MOVEMENT_OPTIONS];
 
 function SignedQty({ movement }) {
   const dir = movementDirection(movement);
@@ -34,7 +32,8 @@ function SignedQty({ movement }) {
 }
 
 export default function MovementsTab({ products = [], onStockChange }) {
-  const { movements, loading, filters, setFilters, register, annul } = useInventoryMovements();
+  const { movements, loading, setFilters, register, annul } = useInventoryMovements();
+  const [filterKey, setFilterKey] = useState("all");
   const [registerOpen, setRegisterOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [toVoid, setToVoid] = useState(null);
@@ -135,22 +134,23 @@ export default function MovementsTab({ products = [], onStockChange }) {
     },
   ];
 
-  const typeValue = filters.movement_type || "all";
+  const applyFilter = (key) => {
+    setFilterKey(key);
+    const cfg = MOVEMENT_FILTERS.find((f) => f.value === key);
+    const params = cfg?.params ?? {};
+    setFilters((prev) => ({ ...prev, origin: params.origin ?? "", movement_type: params.movement_type ?? "" }));
+  };
 
   return (
     <div className="space-y-3">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="w-full sm:w-52">
-          <Select
-            items={TYPE_FILTER}
-            value={typeValue}
-            onValueChange={(v) => setFilters((f) => ({ ...f, movement_type: v === "all" ? "" : v }))}
-          >
+        <div className="w-full sm:w-56">
+          <Select items={MOVEMENT_FILTERS} value={filterKey} onValueChange={applyFilter}>
             <SelectTrigger>
               <SelectValue placeholder="Filtrar por tipo" />
             </SelectTrigger>
             <SelectContent>
-              {TYPE_FILTER.map((o) => (
+              {MOVEMENT_FILTERS.map((o) => (
                 <SelectItem key={o.value} value={o.value}>
                   {o.label}
                 </SelectItem>

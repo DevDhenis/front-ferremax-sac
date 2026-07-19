@@ -10,7 +10,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { MOVEMENT_OPTIONS, formatQty } from "./inventoryMovementConfig";
+import { REGISTER_MOVEMENT_OPTIONS, formatQty } from "./inventoryMovementConfig";
 
 function Field({ label, htmlFor, children, hint, className = "" }) {
   return (
@@ -24,7 +24,7 @@ function Field({ label, htmlFor, children, hint, className = "" }) {
   );
 }
 
-const EMPTY = { product_id: null, movement_type: "inbound", quantity: "", reason: "", stock_after: "" };
+const EMPTY = { product_id: null, movement_type: "outbound", quantity: "", reason: "", stock_after: "" };
 
 export default function RegisterMovementModal({ visible, onHide, products = [], onSubmit }) {
   const [form, setForm] = useState(EMPTY);
@@ -127,7 +127,7 @@ export default function RegisterMovementModal({ visible, onHide, products = [], 
 
         <Field label="Tipo de movimiento *" htmlFor="mv_type">
           <Select
-            items={MOVEMENT_OPTIONS}
+            items={REGISTER_MOVEMENT_OPTIONS}
             value={form.movement_type}
             onValueChange={(v) => set("movement_type", v)}
           >
@@ -135,7 +135,7 @@ export default function RegisterMovementModal({ visible, onHide, products = [], 
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
-              {MOVEMENT_OPTIONS.map((o) => (
+              {REGISTER_MOVEMENT_OPTIONS.map((o) => (
                 <SelectItem key={o.value} value={o.value}>
                   {o.label}
                 </SelectItem>
@@ -181,7 +181,7 @@ export default function RegisterMovementModal({ visible, onHide, products = [], 
             id="mv_reason"
             value={form.reason}
             onChange={(e) => set("reason", e.target.value)}
-            placeholder="Ej: Compra a proveedor, merma, ajuste por conteo…"
+            placeholder="Ej: Merma, uso interno, baja, ajuste por conteo…"
             rows={2}
             className="bg-card"
           />

@@ -6,13 +6,14 @@ export const useInventoryMovements = () => {
   const { http } = useAuth();
   const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({ movement_type: "", product_id: "" });
+  const [filters, setFilters] = useState({ movement_type: "", origin: "", product_id: "" });
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const params = {};
       if (filters.movement_type) params.movement_type = filters.movement_type;
+      if (filters.origin) params.origin = filters.origin;
       if (filters.product_id) params.product_id = filters.product_id;
       const result = await getMovements(http, params);
       setMovements(result.data ?? []);
