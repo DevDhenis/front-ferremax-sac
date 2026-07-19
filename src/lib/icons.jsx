@@ -37,6 +37,7 @@ import {
   Clock,
   BarChart3,
   RotateCcw,
+  Truck,
 } from "lucide-react";
 
 /**
@@ -63,6 +64,7 @@ export const PI_TO_LUCIDE = {
   "pi-th-large": LayoutGrid,
   "pi-chart-bar": BarChart3,
   "pi-replay": RotateCcw,
+  "pi-truck": Truck,
   "pi-filter-list": ListFilter,
   "pi-save": Save,
   "pi-angle-left": ChevronLeft,
