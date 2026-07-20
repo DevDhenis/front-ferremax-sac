@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, RotateCcw } from "lucide-react";
 import { useMySales } from "@/hooks/useMySales";
 import Header from "@/components/layout/Header";
 import Container from "@/components/layout/Container";
 import PurchaseHistory from "../../assets/images/purchase-history.png";
 import DetailPurchaseModal from "@/components/shopping/DetailPurchaseModal";
+import RequestReturnModal from "@/components/returns/RequestReturnModal";
+import ActionButton from "@/components/common/ActionButton";
 import { Avatar } from "@/components/ui/avatar";
 import StatusBadge from "@/components/common/StatusBadge";
 
@@ -32,13 +34,20 @@ function MetaBlock({ label, children }) {
 export default function PurchaseHistoryPage() {
   const { loading, handleGetMySales } = useMySales();
   const [compras, setCompras] = useState([]);
+  const [returnSale, setReturnSale] = useState(null);
 
-  useEffect(() => {
-    const cargar = async () => {
+  const cargarCompras = async () => {
+    try {
       const data = await handleGetMySales();
       setCompras(data || []);
-    };
-    cargar();
+    } catch {
+      // Sin compras o usuario no-cliente: se muestra el estado vacío.
+      setCompras([]);
+    }
+  };
+
+  useEffect(() => {
+    cargarCompras();
   }, []);
 
   const formatDate = (dateString) => {
@@ -120,8 +129,8 @@ export default function PurchaseHistoryPage() {
                   {/* Resumen del pedido */}
                   <div className="flex items-center gap-3 my-4 py-3 border-y border-border/50">
                     <Avatar
-                      src={primerItem?.product?.imagen}
-                      fallback={primerItem?.product?.nombre?.charAt(0) || "?"}
+                      src={primerItem?.product?.image}
+                      fallback={primerItem?.product?.name?.charAt(0) || "?"}
                       className="size-14 rounded-lg bg-secondary/40"
                     />
                     <div className="min-w-0">
@@ -129,7 +138,7 @@ export default function PurchaseHistoryPage() {
                         <span className="font-spec">{totalItems}</span> producto(s)
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
-                        {primerItem?.product?.nombre}
+                        {primerItem?.product?.name}
                         {totalItems > 1 ? " y más…" : ""}
                       </div>
                       <div className="font-spec text-success font-bold mt-1">
@@ -161,7 +170,15 @@ export default function PurchaseHistoryPage() {
                     </MetaBlock>
                   </div>
 
-                  <div className="flex justify-end mt-4">
+                  <div className="flex justify-end items-center gap-2 mt-4">
+                    {c.status === "delivered" && (
+                      <ActionButton
+                        label="Solicitar devolución"
+                        icon={RotateCcw}
+                        color="secondary"
+                        onClick={() => setReturnSale(c)}
+                      />
+                    )}
                     <DetailPurchaseModal sale={c} />
                   </div>
                 </div>
@@ -204,6 +221,13 @@ export default function PurchaseHistoryPage() {
           </div>
         </div>
       </div>
+
+      <RequestReturnModal
+        visible={!!returnSale}
+        onHide={() => setReturnSale(null)}
+        sale={returnSale}
+        onSubmitted={cargarCompras}
+      />
     </Container>
   );
 }

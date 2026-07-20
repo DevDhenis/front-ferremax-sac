@@ -13,20 +13,18 @@ export default function Verification() {
   const type = searchParams.get('type');
 
   const { http } = useAuth();
-  const { showToast } = useToast();
+  const { showError } = useToast();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleVerify = async () => {
     if (!otp || otp.length < 8) {
-      setError("El código debe tener 8 dígitos");
+      showError("Código incompleto", "El código debe tener 8 dígitos.");
       return;
     }
 
     setLoading(true);
-    setError("");
     try {
       const payload = {
         code: otp,
@@ -45,16 +43,11 @@ export default function Verification() {
       if (type === "recoveryPass") {
         navigate("/reset-password", { state: { email, code: otp } });
       } else {
-        showToast("success", "Correo verificado", "Tu cuenta ha sido activada.");
+        // El interceptor de axios ya muestra el toast de éxito.
         navigate("/login");
       }
-    } catch (err) {
-      const response = err.response?.data;
-      if (response?.message) {
-        setError(response.message);
-      } else {
-        setError("El código ingresado es incorrecto o ha expirado.");
-      }
+    } catch {
+      // El interceptor de axios ya muestra el toast de error.
     } finally {
       setLoading(false);
     }
@@ -62,16 +55,14 @@ export default function Verification() {
 
   const handleResend = async () => {
     setLoading(true);
-    setError("");
     try {
       await http.post("auth/resend-code", { email });
-      showToast("success", "Código enviado", "Se ha enviado un nuevo código.");
+      // El interceptor de axios ya muestra el toast de éxito.
     } catch (err) {
-      const response = err.response?.data;
-      if (response?.message) {
-        setError(response.message);
-      } else {
-        setError("Error al reenviar el código.");
+      // 409: el correo ya está verificado → el usuario solo debe iniciar sesión.
+      // Otros errores los muestra el interceptor de axios.
+      if (err.response?.status === 409) {
+        navigate("/login");
       }
     } finally {
       setLoading(false);
@@ -112,10 +103,7 @@ export default function Verification() {
               id="otp"
               maxLength={8}
               value={otp}
-              onChange={(value) => {
-                setOtp(value);
-                if (error) setError("");
-              }}
+              onChange={(value) => setOtp(value)}
               disabled={loading}
             >
               <InputOTPGroup>
@@ -133,12 +121,6 @@ export default function Verification() {
               </InputOTPGroup>
             </InputOTP>
           </div>
-
-          {error && (
-            <div className="p-3 text-xs font-medium text-destructive bg-destructive-bg border border-destructive/20 rounded-lg text-center">
-              {error}
-            </div>
-          )}
         </div>
 
         <div className="flex flex-col gap-3">

@@ -32,12 +32,19 @@ React 19 + Vite 7, JavaScript/JSX (no TypeScript). React Router DOM v7, Axios. A
 
 **Auth + cliente HTTP (`src/services/auth/`).** `authProvider.jsx` crea el `AuthContext` con `user`, `accesses` (permisos de rutas; el primer acceso dirige el redirect post-login) y una instancia Axios `http` con `baseURL: import.meta.env.VITE_BASE_URL`. Token/user/accesses se persisten en `localStorage`; al montar valida contra `/auth/me`. Consumir siempre con `useAuth()` (desde `authContext.js`), que lanza error fuera del provider; nunca importar el provider directo.
 
+**Flujo de autenticación (contrato back).** Regla base: **no se puede iniciar sesión sin verificar el correo**.
+- **Registro** (`POST /auth/register`, campos en inglés `first_name`/`last_name`/`second_last_name`/`address`/`username`/`email`/`password`/`password_confirmation`): **no devuelve token**. Tras registrar, ir siempre a `/verification` (sin autenticar).
+- **Verificar** (`POST /auth/verify-email` con `{ email, code }`) → al éxito ir a `/login`. **Reenviar** (`POST /auth/resend-code`): un `409` significa "correo ya verificado" → mandar a `/login`.
+- **Login** (`POST /auth/login`): un `403` con `requires_verification: true` → redirigir a `/verification` (no es credenciales inválidas, que es `401`).
+- `Login`/`Register` usan `axios` plano (sin interceptor), así que manejan su propio toast; las páginas de verificación/recuperación usan `http` (interceptor).
+
 **Interceptor de toasts (Axios).** El interceptor de respuesta en `authProvider` dispara automáticamente un toast de éxito en `POST`/`PUT`/`DELETE` exitosos (cuando la respuesta trae `success` + `message`) y un toast de error ante cualquier fallo. Para que un componente maneje su **propio** toast sin duplicar, pasar `{ skipToast: true }` en la config de la petición (ver `addItemToCart` en `src/services/shopping-cart/index.js`).
 
 **Patrón de consumo de API (importante).**
 - Endpoints por feature en `src/services/<feature>/index.js` como funciones `async` que reciben `http` como **primer argumento**: `getSales(http)`, `addItemToCart(http, productId)`.
 - Las páginas usan hooks en `src/hooks/` (p. ej. `useSales`, `useShoppingCart`, `useInventoryReport`) que obtienen `http` de `useAuth()`, llaman a las funciones del servicio y exponen `loading` + handlers.
 - La API responde envuelta como `{ success, message, data }`. La lista/objeto real suele estar en **`data.data`** (los servicios devuelven `response.data`; los hooks devuelven `result.data`).
+- **Todos los campos del API están en inglés** (migración completada). Formas frecuentes: `person` = `{ first_name, last_name, second_last_name, address, image, document_number, document_type_id:{id,name} }`; `product` = `{ internal_code, name, description, stock, minimum_quantity, on_promotion, unit_price, wholesale_unit_price, wholesale_min_quantity, discount, image, status, unit:{id,name,abbreviation}, category:{id,name,description} }`; `cart item` = `{ quantity, unit_price, subtotal, product:{…} }`; `category`/`role` = `{ name, description }`; `employee` = `{ work_schedule, salary, status, person:{…} }`; acceso = `{ name, path, icon }`. Al leer o enviar payloads, usar estos nombres (no `nombre`/`precio`/`imagen`/etc.). Pendiente de confirmar: módulo **Ventas** (`customer`, `direccion_envio`).
 
 **Carrito (`src/context/CartContext.jsx`).** Estado compartido del carrito (conteo para el badge). Se monta **solo en la ruta `/catalogo`** (no global) para no consultar `/shopping-cart` en los demás módulos.
 
@@ -76,6 +83,7 @@ React 19 + Vite 7, JavaScript/JSX (no TypeScript). React Router DOM v7, Axios. A
 - Librería: **sonner**. El `<Toaster>` (estilizado con la paleta, `richColors`, posición `top-right`) se monta en `src/App.jsx` desde `src/components/ui/sonner.jsx`.
 - `src/context/ToastContext.jsx`: `useToast()` → `showToast(severity, summary, detail)` mapea a `sonner`.
 - Ver el interceptor de Axios (arriba) para el comportamiento automático y el escape `{ skipToast: true }`.
+- **Un solo toast por acción (regla).** El interceptor es la fuente única de toasts de éxito/error para toda mutación por `http` (como en `ProfileModal`). En una operación `POST`/`PUT`/`DELETE` **no** llames a `showToast` de éxito/error manualmente — dejarías dos toasts. Usa `showToast` solo para **validación en cliente** (antes de la petición) o cuando la petición lleve `{ skipToast: true }` y el componente muestre su propio mensaje (p. ej. carrito). Nota: las páginas públicas que usan `axios` plano (Login, Register) **no** pasan por el interceptor, así que ahí sí muestran su propio toast.
 
 ## Commits
 

@@ -1,4 +1,6 @@
+import { History } from "lucide-react";
 import ActionButton from "../common/ActionButton";
+import { Avatar } from "@/components/ui/avatar";
 import { DataTable } from "@/components/ui/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { cn } from "@/lib/utils";
@@ -29,97 +31,113 @@ export default function InventoryTable({
   productos,
   onEditProduct,
   onDeleteProduct,
+  onViewKardex,
   onRefresh,
   loading = false,
 }) {
   const columns = [
     {
-      accessorKey: "codigo_interno",
+      accessorKey: "internal_code",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Código" />,
       cell: ({ row }) => (
         <span className="font-spec text-xs text-muted-foreground">
-          {row.original.codigo_interno}
+          {row.original.internal_code}
         </span>
       ),
     },
     {
-      accessorKey: "nombre",
+      accessorKey: "name",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Producto" />,
       cell: ({ row }) => (
-        <span className="font-medium text-foreground">{row.original.nombre}</span>
+        <div className="flex items-center gap-3">
+          <Avatar
+            src={row.original.image}
+            alt={row.original.name}
+            fallback={row.original.name?.charAt(0) || "?"}
+            className="size-10 rounded-lg"
+          />
+          <span className="font-medium text-foreground">{row.original.name}</span>
+        </div>
       ),
     },
     {
-      id: "categoria",
+      id: "category",
       accessorFn: (r) => r.category?.name ?? "",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Categoría" />,
       cell: ({ row }) => <StatusBadge tone="muted">{row.original.category?.name}</StatusBadge>,
     },
     {
-      accessorKey: "pre_uni",
+      accessorKey: "unit_price",
       header: ({ column }) => <DataTableColumnHeader column={column} title="P. Unitario" />,
-      cell: ({ row }) => <span className="font-spec">{money(row.original.pre_uni)}</span>,
+      cell: ({ row }) => <span className="font-spec">{money(row.original.unit_price)}</span>,
     },
     {
-      accessorKey: "pre_uni_may",
+      accessorKey: "wholesale_unit_price",
       header: ({ column }) => <DataTableColumnHeader column={column} title="P. Mayor" />,
-      cell: ({ row }) => <span className="font-spec">{money(row.original.pre_uni_may)}</span>,
+      cell: ({ row }) => <span className="font-spec">{money(row.original.wholesale_unit_price)}</span>,
     },
     {
       accessorKey: "stock",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Stock" />,
       cell: ({ row }) => {
         const p = row.original;
-        const low = parseFloat(p.stock) <= parseFloat(p.cantidad_minima);
+        const low = parseFloat(p.stock) <= parseFloat(p.minimum_quantity);
         return (
           <span className={cn("font-spec", low && "text-destructive font-semibold")}>
-            {parseFloat(p.stock)} {p.unit?.abreviatura}
+            {parseFloat(p.stock)} {p.unit?.abbreviation}
           </span>
         );
       },
     },
     {
-      id: "unidad",
-      accessorFn: (r) => r.unit?.abreviatura ?? "",
+      id: "unit",
+      accessorFn: (r) => r.unit?.abbreviation ?? "",
       header: "Unidad",
       cell: ({ row }) => (
         <span className="text-muted-foreground text-xs">
-          {row.original.unit?.nombre} ({row.original.unit?.abreviatura})
+          {row.original.unit?.name} ({row.original.unit?.abbreviation})
         </span>
       ),
       enableSorting: false,
     },
     {
-      accessorKey: "en_promocion",
+      accessorKey: "on_promotion",
       header: "Promoción",
       cell: ({ row }) =>
-        row.original.en_promocion ? (
+        row.original.on_promotion ? (
           <StatusBadge tone="warning">Sí</StatusBadge>
         ) : (
           <StatusBadge tone="muted">No</StatusBadge>
         ),
     },
     {
-      accessorKey: "descuento",
+      accessorKey: "discount",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Desc." />,
-      cell: ({ row }) => <span className="font-spec">{row.original.descuento}%</span>,
+      cell: ({ row }) => <span className="font-spec">{row.original.discount}%</span>,
     },
     {
-      accessorKey: "estado_registro",
+      accessorKey: "status",
       header: "Estado",
       cell: ({ row }) =>
-        row.original.estado_registro === "A" ? (
+        row.original.status === "A" ? (
           <StatusBadge tone="success">Activo</StatusBadge>
         ) : (
           <StatusBadge tone="danger">Inactivo</StatusBadge>
         ),
     },
     {
-      id: "acciones",
+      id: "actions",
       header: () => <span className="sr-only">Acciones</span>,
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex gap-1.5 justify-end">
+          <ActionButton
+            icon={History}
+            color="secondary"
+            size="sm"
+            tooltip="Ver trazabilidad (kardex)"
+            onClick={() => onViewKardex?.(row.original)}
+          />
           <ActionButton
             icon="pi pi-pencil"
             color="warning"

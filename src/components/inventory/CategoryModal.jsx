@@ -102,17 +102,6 @@ export default function CategoryModal({ visible, onHide }) {
       ),
     },
     {
-      accessorKey: "created_at",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Creada" />
-      ),
-      cell: ({ row }) => (
-        <span className="font-spec text-xs text-muted-foreground">
-          {new Date(row.original.created_at).toLocaleDateString()}
-        </span>
-      ),
-    },
-    {
       id: "acciones",
       header: () => <span className="sr-only">Acciones</span>,
       enableSorting: false,

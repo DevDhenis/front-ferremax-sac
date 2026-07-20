@@ -29,7 +29,9 @@ export default function RoleUsersModal({ role, visible, onHide }) {
       if (data.success) {
         const mapped = data.data.map((emp) => ({
           id: emp.id,
-          label: emp.person?.nombres || `Empleado ${emp.id}`,
+          label:
+            `${emp.person?.first_name ?? ""} ${emp.person?.last_name ?? ""}`.trim() ||
+            `Empleado ${emp.id}`,
           person: emp.person
         }));
         setEmployees(mapped);
@@ -55,7 +57,7 @@ export default function RoleUsersModal({ role, visible, onHide }) {
         const rowData = row.original;
         return (
           <Avatar
-            src={rowData.person?.imagen}
+            src={rowData.person?.image}
             fallback={rowData.username?.[0]?.toUpperCase() || "?"}
             className="size-9"
           />
@@ -78,10 +80,12 @@ export default function RoleUsersModal({ role, visible, onHide }) {
     },
     {
       id: "nombre",
-      accessorFn: (r) => r.person?.nombres ?? "",
+      accessorFn: (r) => `${r.person?.first_name ?? ""} ${r.person?.last_name ?? ""}`.trim(),
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
       cell: ({ row }) => (
-        <span className="text-foreground">{row.original.person?.nombres || "-"}</span>
+        <span className="text-foreground">
+          {`${row.original.person?.first_name ?? ""} ${row.original.person?.last_name ?? ""}`.trim() || "-"}
+        </span>
       ),
     },
   ];
@@ -90,7 +94,7 @@ export default function RoleUsersModal({ role, visible, onHide }) {
     <CustomModal
       visible={visible}
       onHide={onHide}
-      header={`Usuarios del rol: ${role?.nombre}`}
+      header={`Usuarios del rol: ${role?.name}`}
       className="w-[92vw] sm:w-[80vw] md:w-[64vw] lg:w-[56vw]"
     >
       <AssignUserForm role={role} employees={employees} onAssigned={getUsers} />

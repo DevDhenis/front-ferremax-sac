@@ -16,8 +16,8 @@ export default function EditRol({ role, visible, onHide, onUpdated }) {
 
   useEffect(() => {
     if (!visible || !role) return;
-    setNombre(role.nombre || "");
-    setDescripcion(role.descripcion || "");
+    setNombre(role.name || "");
+    setDescripcion(role.description || "");
     loadAccessData();
   }, [visible, role]);
 
@@ -45,7 +45,7 @@ export default function EditRol({ role, visible, onHide, onUpdated }) {
     if (!nombre.trim()) return;
     try {
       setLoading(true);
-      await http.put(`/roles/${role.id}`, { nombre, descripcion });
+      await http.put(`/roles/${role.id}`, { name: nombre, description: descripcion });
       await http.post(`/roles/${role.id}/accesses`, { access_ids: selectedAccesses });
       if (onUpdated) onUpdated();
       onHide();
@@ -106,7 +106,7 @@ export default function EditRol({ role, visible, onHide, onUpdated }) {
                   checked={selectedAccesses.includes(acc.id)}
                   onCheckedChange={() => toggleAccess(acc.id)}
                 />
-                <span className="text-sm text-foreground">{acc.nombre}</span>
+                <span className="text-sm text-foreground">{acc.name}</span>
               </label>
             ))}
           </div>

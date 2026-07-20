@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useAuth } from '@/services/auth/authContext';
-import { useToast } from "@/context/ToastContext";
 import CustomModal from '../common/CustomModal';
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -12,7 +11,6 @@ export default function ConfirmRecoveryPass() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const getEmailError = () => {
@@ -39,9 +37,9 @@ export default function ConfirmRecoveryPass() {
     try {
       await http.post('auth/forgot-password', { email });
       close();
-      showToast("success", "Correo enviado", "Se envió un código a tu correo.");
+      // El interceptor de axios ya muestra el toast de éxito.
       navigate(`/verification?email=${encodeURIComponent(email)}&type=recoveryPass`);
-    } catch (error) {
+    } catch {
       close();
     } finally {
       setLoading(false);

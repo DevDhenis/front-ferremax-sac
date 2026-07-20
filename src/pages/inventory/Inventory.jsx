@@ -1,11 +1,19 @@
 import { useState, useEffect } from "react";
+import { Package, ArrowLeftRight } from "lucide-react";
 import { useAuth } from "@/services/auth/authContext";
 import Container from "@/components/layout/Container";
 import InventoryHeader from "@/components/inventory/InventoryHeader";
 import InventoryTable from "@/components/inventory/InventoryTable";
 import ProductFormModal from "@/components/inventory/ProductFormModal";
 import CategoryModal from "@/components/inventory/CategoryModal";
+import MovementsTab from "@/components/inventory/MovementsTab";
+import KardexModal from "@/components/inventory/KardexModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
+
+const TABS = [
+  { id: "productos", label: "Productos", icon: Package },
+  { id: "movimientos", label: "Movimientos", icon: ArrowLeftRight },
+];
 
 export default function Inventory() {
     const { http } = useAuth();
@@ -17,6 +25,8 @@ export default function Inventory() {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [productToDelete, setProductToDelete] = useState(null);
     const [searchValue, setSearchValue] = useState("");
+    const [activeTab, setActiveTab] = useState("productos");
+    const [kardexProduct, setKardexProduct] = useState(null);
 
     const getProducts = async () => {
         setLoading(true);
@@ -37,10 +47,10 @@ export default function Inventory() {
             setFilteredProducts(productos);
         } else {
             const filtered = productos.filter(product =>
-                product.codigo_interno.toLowerCase().includes(searchValue.toLowerCase()) ||
-                product.nombre.toLowerCase().includes(searchValue.toLowerCase()) ||
+                product.internal_code.toLowerCase().includes(searchValue.toLowerCase()) ||
+                product.name.toLowerCase().includes(searchValue.toLowerCase()) ||
                 product.category?.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-                product.descripcion?.toLowerCase().includes(searchValue.toLowerCase())
+                product.description?.toLowerCase().includes(searchValue.toLowerCase())
             );
             setFilteredProducts(filtered);
         }
@@ -91,16 +101,16 @@ export default function Inventory() {
             "Stock", "Unidad", "En promoción", "Descuento", "Estado",
         ];
         const data = rows.map((p) => [
-            p.codigo_interno,
-            p.nombre,
+            p.internal_code,
+            p.name,
             p.category?.name ?? "",
-            Number(p.pre_uni).toFixed(2),
-            Number(p.pre_uni_may).toFixed(2),
+            Number(p.unit_price).toFixed(2),
+            Number(p.wholesale_unit_price).toFixed(2),
             parseFloat(p.stock),
-            p.unit?.abreviatura ?? "",
-            p.en_promocion ? "Sí" : "No",
-            `${p.descuento}%`,
-            p.estado_registro === "A" ? "Activo" : "Inactivo",
+            p.unit?.abbreviation ?? "",
+            p.on_promotion ? "Sí" : "No",
+            `${p.discount}%`,
+            p.status === "A" ? "Activo" : "Inactivo",
         ]);
 
         const esc = (v) => {
@@ -122,20 +132,50 @@ export default function Inventory() {
 
     return (
         <Container className="space-y-3">
-            <InventoryHeader
-                onAddClick={handleAddProduct}
-                onAddCategory={() => setCategoryVisible(true)}
-                searchValue={searchValue}
-                onSearchChange={handleSearchChange}
-                onGenerateReport={handleGenerateReport}
-            />
-            <InventoryTable
-                productos={filteredProducts}
-                onEditProduct={handleEditProduct}
-                onDeleteProduct={setProductToDelete}
-                onRefresh={getProducts}
-                loading={loading}
-            />
+            {/* Pestañas: Productos | Movimientos */}
+            <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card p-1">
+                {TABS.map((tab) => {
+                    const active = activeTab === tab.id;
+                    const Icon = tab.icon;
+                    return (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                                active
+                                    ? "bg-primary text-primary-foreground"
+                                    : "text-muted-foreground hover:text-foreground"
+                            }`}
+                        >
+                            <Icon className="size-4" />
+                            {tab.label}
+                        </button>
+                    );
+                })}
+            </div>
+
+            {activeTab === "productos" ? (
+                <>
+                    <InventoryHeader
+                        onAddClick={handleAddProduct}
+                        onAddCategory={() => setCategoryVisible(true)}
+                        searchValue={searchValue}
+                        onSearchChange={handleSearchChange}
+                        onGenerateReport={handleGenerateReport}
+                    />
+                    <InventoryTable
+                        productos={filteredProducts}
+                        onEditProduct={handleEditProduct}
+                        onDeleteProduct={setProductToDelete}
+                        onViewKardex={setKardexProduct}
+                        onRefresh={getProducts}
+                        loading={loading}
+                    />
+                </>
+            ) : (
+                <MovementsTab products={productos} onStockChange={getProducts} />
+            )}
             <ProductFormModal
                 visible={visible}
                 onHide={handleHideModal}
@@ -154,12 +194,18 @@ export default function Inventory() {
                 description={
                     <>
                         ¿Seguro que deseas eliminar el producto{" "}
-                        <span className="font-semibold text-foreground">“{productToDelete?.nombre}”</span>?
+                        <span className="font-semibold text-foreground">“{productToDelete?.name}”</span>?
                         Esta acción no se puede deshacer.
                     </>
                 }
                 confirmLabel="Sí, eliminar"
                 onConfirm={confirmDelete}
+            />
+
+            <KardexModal
+                visible={!!kardexProduct}
+                onHide={() => setKardexProduct(null)}
+                product={kardexProduct}
             />
         </Container>
     );

@@ -8,21 +8,21 @@ export default function CreateOrEditWorker({ isOpen, onClose, reload, setReload,
   const { http } = useAuth();
 
   const [formData, setFormData] = useState({
-    nombres: "",
-    horario_laboral: "",
-    sueldo: "",
+    first_name: "",
+    work_schedule: "",
+    salary: "",
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (editData) {
       setFormData({
-        nombres: editData?.person?.nombres || "",
-        horario_laboral: editData?.horario_laboral || "",
-        sueldo: editData?.sueldo || "",
+        first_name: editData?.person?.first_name || "",
+        work_schedule: editData?.work_schedule || "",
+        salary: editData?.salary || "",
       });
     } else {
-      setFormData({ nombres: "", horario_laboral: "", sueldo: "" });
+      setFormData({ first_name: "", work_schedule: "", salary: "" });
     }
   }, [editData]);
 
@@ -31,7 +31,7 @@ export default function CreateOrEditWorker({ isOpen, onClose, reload, setReload,
   };
 
   const handleSubmit = async () => {
-    if (!formData.nombres.trim()) return;
+    if (!formData.first_name.trim()) return;
     try {
       setLoading(true);
       if (editData) {
@@ -57,7 +57,7 @@ export default function CreateOrEditWorker({ isOpen, onClose, reload, setReload,
         icon="pi pi-check"
         color="success"
         loading={loading}
-        disabled={loading || !formData.nombres.trim()}
+        disabled={loading || !formData.first_name.trim()}
         onClick={handleSubmit}
       />
     </div>
@@ -75,8 +75,8 @@ export default function CreateOrEditWorker({ isOpen, onClose, reload, setReload,
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-foreground">Nombres *</label>
           <Input
-            name="nombres"
-            value={formData.nombres}
+            name="first_name"
+            value={formData.first_name}
             onChange={handleChange}
             placeholder="Ej: Juan Pérez"
             className="bg-card"
@@ -86,8 +86,8 @@ export default function CreateOrEditWorker({ isOpen, onClose, reload, setReload,
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-foreground">Horario laboral *</label>
           <Input
-            name="horario_laboral"
-            value={formData.horario_laboral}
+            name="work_schedule"
+            value={formData.work_schedule}
             onChange={handleChange}
             placeholder="Ej: 9am - 6pm"
             className="bg-card"
@@ -98,8 +98,8 @@ export default function CreateOrEditWorker({ isOpen, onClose, reload, setReload,
           <label className="text-xs font-medium text-foreground">Sueldo (S/) *</label>
           <Input
             type="number"
-            name="sueldo"
-            value={formData.sueldo}
+            name="salary"
+            value={formData.salary}
             onChange={handleChange}
             placeholder="0.00"
             className="bg-card font-spec"

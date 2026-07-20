@@ -52,25 +52,27 @@ export default function Workers() {
   const columns = [
     {
       id: "nombre",
-      accessorFn: (r) => r.person?.nombres ?? "",
+      accessorFn: (r) => `${r.person?.first_name ?? ""} ${r.person?.last_name ?? ""}`.trim(),
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
       cell: ({ row }) => (
-        <span className="font-medium text-foreground">{row.original.person?.nombres}</span>
+        <span className="font-medium text-foreground">
+          {`${row.original.person?.first_name ?? ""} ${row.original.person?.last_name ?? ""}`.trim()}
+        </span>
       ),
     },
     {
-      accessorKey: "horario_laboral",
+      accessorKey: "work_schedule",
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Horario laboral" />
       ),
       cell: ({ row }) => (
-        <span className="text-foreground">{row.original.horario_laboral}</span>
+        <span className="text-foreground">{row.original.work_schedule}</span>
       ),
     },
     {
-      accessorKey: "sueldo",
+      accessorKey: "salary",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Sueldo" />,
-      cell: ({ row }) => <span className="font-spec">S/. {row.original.sueldo}</span>,
+      cell: ({ row }) => <span className="font-spec">S/. {row.original.salary}</span>,
     },
     {
       id: "acciones",
@@ -138,7 +140,7 @@ export default function Workers() {
           <>
             ¿Seguro que deseas eliminar a{" "}
             <span className="font-semibold text-foreground">
-              “{workerToDelete?.person?.nombres}”
+              “{`${workerToDelete?.person?.first_name ?? ""} ${workerToDelete?.person?.last_name ?? ""}`.trim()}”
             </span>
             ? Esta acción no se puede deshacer.
           </>

@@ -15,16 +15,16 @@ import { useAuth } from "@/services/auth/authContext";
 import { useToast } from "@/context/ToastContext";
 
 const EMPTY_FORM = {
-  codigo_interno: "",
-  nombre: "",
-  descripcion: "",
+  internal_code: "",
+  name: "",
+  description: "",
   stock: 0,
-  cantidad_minima: 0,
-  en_promocion: false,
-  pre_uni: 0,
-  pre_uni_may: 0,
-  can_min_may: 0,
-  descuento: 0,
+  minimum_quantity: 0,
+  on_promotion: false,
+  unit_price: 0,
+  wholesale_unit_price: 0,
+  wholesale_min_quantity: 0,
+  discount: 0,
   unit_id: "",
   product_category_id: "",
 };
@@ -55,16 +55,16 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
     loadInitialData();
     if (product) {
       setFormData({
-        codigo_interno: product.codigo_interno || "",
-        nombre: product.nombre || "",
-        descripcion: product.descripcion || "",
+        internal_code: product.internal_code || "",
+        name: product.name || "",
+        description: product.description || "",
         stock: product.stock ?? 0,
-        cantidad_minima: product.cantidad_minima ?? 0,
-        en_promocion: product.en_promocion || false,
-        pre_uni: product.pre_uni ?? 0,
-        pre_uni_may: product.pre_uni_may ?? 0,
-        can_min_may: product.can_min_may ?? 0,
-        descuento: product.descuento ?? 0,
+        minimum_quantity: product.minimum_quantity ?? 0,
+        on_promotion: product.on_promotion || false,
+        unit_price: product.unit_price ?? 0,
+        wholesale_unit_price: product.wholesale_unit_price ?? 0,
+        wholesale_min_quantity: product.wholesale_min_quantity ?? 0,
+        discount: product.discount ?? 0,
         unit_id: product.unit_id || "",
         product_category_id: product.product_category_id || "",
       });
@@ -102,19 +102,19 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
   };
 
   const handleSubmit = async () => {
-    if (!formData.codigo_interno || !formData.nombre) {
+    if (!formData.internal_code || !formData.name) {
       showToast("error", "Error", "Código interno y nombre son obligatorios");
       return;
     }
-    if (!formData.pre_uni || formData.pre_uni <= 0) {
+    if (!formData.unit_price || formData.unit_price <= 0) {
       showToast("error", "Error", "El precio unitario debe ser mayor a 0");
       return;
     }
-    if (!formData.pre_uni_may || formData.pre_uni_may <= 0) {
+    if (!formData.wholesale_unit_price || formData.wholesale_unit_price <= 0) {
       showToast("error", "Error", "El precio por mayor debe ser mayor a 0");
       return;
     }
-    if (!formData.can_min_may || formData.can_min_may <= 0) {
+    if (!formData.wholesale_min_quantity || formData.wholesale_min_quantity <= 0) {
       showToast("error", "Error", "La cantidad mínima por mayor debe ser mayor a 0");
       return;
     }
@@ -132,12 +132,12 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
       const submitData = new FormData();
       Object.keys(formData).forEach((key) => {
         let value = formData[key];
-        if (key === "en_promocion") value = value ? "1" : "0";
+        if (key === "on_promotion") value = value ? "1" : "0";
         if (value !== null && value !== undefined) {
           submitData.append(key, value.toString());
         }
       });
-      if (selectedFile) submitData.append("imagen", selectedFile);
+      if (selectedFile) submitData.append("image", selectedFile);
 
       if (product) {
         submitData.append("_method", "PUT");
@@ -176,7 +176,7 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
         color="success"
         onClick={handleSubmit}
         loading={loading}
-        disabled={loading || !formData.codigo_interno || !formData.nombre}
+        disabled={loading || !formData.internal_code || !formData.name}
       />
     </div>
   );
@@ -190,31 +190,31 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
       className="w-[92vw] md:w-[70vw] lg:w-[56vw]"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field label="Código interno *" htmlFor="codigo_interno">
+        <Field label="Código interno *" htmlFor="internal_code">
           <Input
-            id="codigo_interno"
-            value={formData.codigo_interno}
-            onChange={(e) => handleInputChange("codigo_interno", e.target.value)}
+            id="internal_code"
+            value={formData.internal_code}
+            onChange={(e) => handleInputChange("internal_code", e.target.value)}
             placeholder="Ej: FER-001-A1"
             className="h-9 bg-card font-spec"
           />
         </Field>
 
-        <Field label="Nombre *" htmlFor="nombre">
+        <Field label="Nombre *" htmlFor="name">
           <Input
-            id="nombre"
-            value={formData.nombre}
-            onChange={(e) => handleInputChange("nombre", e.target.value)}
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleInputChange("name", e.target.value)}
             placeholder="Nombre del producto"
             className="h-9 bg-card"
           />
         </Field>
 
-        <Field label="Descripción" htmlFor="descripcion" className="sm:col-span-2">
+        <Field label="Descripción" htmlFor="description" className="sm:col-span-2">
           <Textarea
-            id="descripcion"
-            value={formData.descripcion}
-            onChange={(e) => handleInputChange("descripcion", e.target.value)}
+            id="description"
+            value={formData.description}
+            onChange={(e) => handleInputChange("description", e.target.value)}
             placeholder="Descripción del producto (opcional)"
             rows={2}
             className="bg-card"
@@ -242,7 +242,7 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
 
         <Field label="Unidad de medida *" htmlFor="unit_id">
           <Select
-            items={units.map((u) => ({ label: `${u.nombre} (${u.abreviatura})`, value: u.id }))}
+            items={units.map((u) => ({ label: `${u.name} (${u.abbreviation})`, value: u.id }))}
             value={formData.unit_id === "" ? null : formData.unit_id}
             onValueChange={(v) => handleInputChange("unit_id", v)}
           >
@@ -252,90 +252,93 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
             <SelectContent>
               {units.map((unit) => (
                 <SelectItem key={unit.id} value={unit.id}>
-                  {unit.nombre} ({unit.abreviatura})
+                  {unit.name} ({unit.abbreviation})
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </Field>
 
-        <Field label="Stock *" htmlFor="stock">
+        <Field label="Stock (solo lectura)" htmlFor="stock">
           <Input
             id="stock"
             type="number"
-            min={0}
-            step="0.01"
-            value={formData.stock}
-            onChange={(e) => handleNumberChange("stock", e.target.value)}
-            className="h-9 bg-card font-spec"
+            value={product ? formData.stock : 0}
+            disabled
+            className="h-9 bg-muted/40 font-spec disabled:opacity-70 disabled:cursor-not-allowed"
           />
+          <span className="text-[11px] text-muted-foreground">
+            {product
+              ? "El stock se gestiona desde Inventario → Movimientos (kardex)."
+              : "El producto se crea en 0; carga su stock con un movimiento de Entrada."}
+          </span>
         </Field>
 
-        <Field label="Cantidad mínima *" htmlFor="cantidad_minima">
+        <Field label="Cantidad mínima *" htmlFor="minimum_quantity">
           <Input
-            id="cantidad_minima"
+            id="minimum_quantity"
             type="number"
             min={0}
             step="0.01"
-            value={formData.cantidad_minima}
-            onChange={(e) => handleNumberChange("cantidad_minima", e.target.value)}
+            value={formData.minimum_quantity}
+            onChange={(e) => handleNumberChange("minimum_quantity", e.target.value)}
             className="h-9 bg-card font-spec"
           />
         </Field>
 
-        <Field label="Precio unitario (S/) *" htmlFor="pre_uni">
+        <Field label="Precio unitario (S/) *" htmlFor="unit_price">
           <Input
-            id="pre_uni"
+            id="unit_price"
             type="number"
             min={0}
             step="0.01"
-            value={formData.pre_uni}
-            onChange={(e) => handleNumberChange("pre_uni", e.target.value)}
+            value={formData.unit_price}
+            onChange={(e) => handleNumberChange("unit_price", e.target.value)}
             className="h-9 bg-card font-spec"
           />
         </Field>
 
-        <Field label="Precio por mayor (S/) *" htmlFor="pre_uni_may">
+        <Field label="Precio por mayor (S/) *" htmlFor="wholesale_unit_price">
           <Input
-            id="pre_uni_may"
+            id="wholesale_unit_price"
             type="number"
             min={0}
             step="0.01"
-            value={formData.pre_uni_may}
-            onChange={(e) => handleNumberChange("pre_uni_may", e.target.value)}
+            value={formData.wholesale_unit_price}
+            onChange={(e) => handleNumberChange("wholesale_unit_price", e.target.value)}
             className="h-9 bg-card font-spec"
           />
         </Field>
 
-        <Field label="Cant. mínima mayor *" htmlFor="can_min_may">
+        <Field label="Cant. mínima mayor *" htmlFor="wholesale_min_quantity">
           <Input
-            id="can_min_may"
+            id="wholesale_min_quantity"
             type="number"
             min={0}
             step="0.01"
-            value={formData.can_min_may}
-            onChange={(e) => handleNumberChange("can_min_may", e.target.value)}
+            value={formData.wholesale_min_quantity}
+            onChange={(e) => handleNumberChange("wholesale_min_quantity", e.target.value)}
             className="h-9 bg-card font-spec"
           />
         </Field>
 
-        <Field label="Descuento (%)" htmlFor="descuento">
+        <Field label="Descuento (%)" htmlFor="discount">
           <Input
-            id="descuento"
+            id="discount"
             type="number"
             min={0}
             max={100}
             step="1"
-            value={formData.descuento}
-            onChange={(e) => handleNumberChange("descuento", e.target.value)}
+            value={formData.discount}
+            onChange={(e) => handleNumberChange("discount", e.target.value)}
             className="h-9 bg-card font-spec"
           />
         </Field>
 
         {/* Imagen */}
-        <Field label="Imagen" htmlFor="imagen" className="sm:col-span-2">
+        <Field label="Imagen" htmlFor="image" className="sm:col-span-2">
           <label
-            htmlFor="imagen"
+            htmlFor="image"
             className="flex items-center gap-3 rounded-lg border border-dashed border-input bg-card px-3 py-2.5 cursor-pointer transition-colors hover:border-ring hover:bg-secondary/40"
           >
             <span className="inline-flex size-9 items-center justify-center rounded-lg bg-secondary text-muted-foreground shrink-0">
@@ -345,7 +348,7 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
               {selectedFile ? selectedFile.name : "Seleccionar imagen (JPG, PNG…)"}
             </span>
             <input
-              id="imagen"
+              id="image"
               type="file"
               accept="image/*"
               onChange={handleFileSelect}
@@ -358,8 +361,8 @@ export default function ProductFormModal({ visible, onHide, product, onSave, onS
         <label className="sm:col-span-2 flex items-center gap-2.5 cursor-pointer select-none">
           <input
             type="checkbox"
-            checked={formData.en_promocion}
-            onChange={(e) => handleInputChange("en_promocion", e.target.checked)}
+            checked={formData.on_promotion}
+            onChange={(e) => handleInputChange("on_promotion", e.target.checked)}
             className="size-4 rounded border border-input accent-primary cursor-pointer"
           />
           <span className="text-sm font-medium text-foreground">En promoción</span>

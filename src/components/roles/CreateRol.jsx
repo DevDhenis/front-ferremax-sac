@@ -38,7 +38,7 @@ export default function CreateRol({ onCreated }) {
     if (!nombre.trim()) return;
     try {
       setLoading(true);
-      const { data } = await http.post("/roles", { nombre, descripcion });
+      const { data } = await http.post("/roles", { name: nombre, description: descripcion });
       if (data.success) {
         const roleId = data.data?.id || data.id || data.role?.id;
         if (!roleId) return;
@@ -115,7 +115,7 @@ export default function CreateRol({ onCreated }) {
                     checked={selectedAccesses.includes(acc.id)}
                     onCheckedChange={() => toggleAccess(acc.id)}
                   />
-                  <span className="text-sm text-foreground">{acc.nombre}</span>
+                  <span className="text-sm text-foreground">{acc.name}</span>
                 </label>
               ))}
             </div>

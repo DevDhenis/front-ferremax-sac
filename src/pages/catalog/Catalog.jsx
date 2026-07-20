@@ -81,8 +81,8 @@ export default function Catalog() {
       const term = normalize(searchTerm);
 
       list = list.filter((p) => {
-        const nombre = normalize(p.nombre);
-        const descripcion = normalize(p.descripcion || "");
+        const nombre = normalize(p.name);
+        const descripcion = normalize(p.description || "");
         return nombre.includes(term) || descripcion.includes(term);
       });
     }
@@ -113,7 +113,7 @@ export default function Catalog() {
   const addToCart = async (producto) => {
     try {
       await addProductToCart(producto.id);
-      showToast("success", "Carrito", `${producto.nombre} se agregó a tu carrito.`);
+      showToast("success", "Carrito", `${producto.name} se agregó a tu carrito.`);
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
@@ -121,6 +121,8 @@ export default function Catalog() {
       showToast("error", "Carrito", msg);
     }
   };
+
+  const promociones = productos.filter((p) => p.on_promotion);
 
   return (
     <Container>
@@ -134,27 +136,28 @@ export default function Catalog() {
         </div>
       </div>
 
-      <PromoCarousel productos={productos.filter(p => p.en_promocion)} />
+      {/* Banner hero de ofertas */}
+      <PromoCarousel productos={promociones} onAddToCart={addToCart} />
 
-      <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
-        {/* Sidebar Sticky en Desktop, Horizontal en Móvil */}
-        <aside className="w-full md:w-60 lg:w-68 shrink-0 md:sticky md:top-24">
-          <CategorySidebar
-            categorias={categorias}
-            categoriaSeleccionada={categoriaSeleccionada}
-            onCategoriaChange={handleCategoriaChange}
-            conteoProductosPorCategoria={conteoProductosPorCategoria}
-          />
-        </aside>
+      {/* Categorías: fila de chips a lo ancho */}
+      <div className="mb-6">
+        <CategorySidebar
+          categorias={categorias}
+          categoriaSeleccionada={categoriaSeleccionada}
+          onCategoriaChange={handleCategoriaChange}
+          conteoProductosPorCategoria={conteoProductosPorCategoria}
+        />
+      </div>
 
-        {/* Sección Principal de Productos */}
+      {/* Productos a todo el ancho */}
+      <div className="w-full">
         <div className="flex-1 w-full min-w-0">
           {loading ? (
-            <div className="grid grid-cols-12 gap-5">
-              {[...Array(6)].map((_, index) => (
+            <div className="grid grid-cols-12 gap-4 lg:gap-5">
+              {[...Array(8)].map((_, index) => (
                 <div
                   key={index}
-                  className="col-span-12 sm:col-span-6 lg:col-span-4"
+                  className="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3"
                 >
                   <ProductSkeleton />
                 </div>
@@ -162,9 +165,9 @@ export default function Catalog() {
             </div>
           ) : (
             <>
-              {/* Barra de Título de Categoría & Info */}
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 pb-4 border-b border-border/40">
-                <div>
+              {/* Barra de Título + Buscador + Controles (una sola fila) */}
+              <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-5 pb-4 border-b border-border/40">
+                <div className="shrink-0">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                     {categoriaSeleccionada === "todas" ? "Catálogo" : "Categoría"}
                   </span>
@@ -181,8 +184,17 @@ export default function Catalog() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 self-end">
-                  <span className="font-spec text-xs bg-secondary text-muted-foreground px-2.5 py-1 rounded-md border border-border/60">
+                <div className="flex items-center gap-3 w-full lg:w-auto">
+                  <CustomSearch
+                    value={searchTerm}
+                    onChange={(val) => {
+                      setSearchTerm(val);
+                      setFirst(0);
+                    }}
+                    placeholder="Buscar productos..."
+                    className="flex-1 lg:w-72"
+                  />
+                  <span className="hidden sm:inline-flex font-spec text-xs bg-secondary text-muted-foreground px-2.5 py-1.5 rounded-md border border-border/60 shrink-0">
                     Pág {Math.floor(first / rows) + 1} / {Math.ceil(productosFiltrados.length / rows) || 1}
                   </span>
 
@@ -194,19 +206,6 @@ export default function Catalog() {
                     loading={loading}
                   />
                 </div>
-              </div>
-
-              {/* Buscador */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
-                <CustomSearch
-                  value={searchTerm}
-                  onChange={(val) => {
-                    setSearchTerm(val);
-                    setFirst(0);
-                  }}
-                  placeholder="Buscar productos por nombre o descripción..."
-                  className="max-w-md"
-                />
               </div>
 
               <ProductsGrid
@@ -241,7 +240,7 @@ export default function Catalog() {
                         ? "No hay productos disponibles en el catálogo por ahora."
                         : `No hay productos en la categoría "${categorias.find(
                           (c) => c.id.toString() === categoriaSeleccionada
-                        )?.name}". Elige otra desde el panel lateral.`}
+                        )?.name}". Elige otra desde las categorías de arriba.`}
                   </p>
                 </div>
               )}
