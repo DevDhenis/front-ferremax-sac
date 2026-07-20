@@ -1,379 +1,373 @@
-import React, { useState, useEffect } from "react";
-import { InputText } from "primereact/inputtext";
-import { Dropdown } from "primereact/dropdown";
-import { InputNumber } from "primereact/inputnumber";
-import { Checkbox } from "primereact/checkbox";
-import { FileUpload } from "primereact/fileupload";
+import { useState, useEffect } from "react";
+import { Upload, ImageIcon } from "lucide-react";
 import CustomModal from "../common/CustomModal";
 import ActionButton from "../common/ActionButton";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { useAuth } from "@/services/auth/authContext";
 import { useToast } from "@/context/ToastContext";
 
-export default function ProductFormModal({ visible, onHide, product, onSuccess }) {
-    const { http } = useAuth();
-    const { showToast } = useToast();
+const EMPTY_FORM = {
+  internal_code: "",
+  name: "",
+  description: "",
+  stock: 0,
+  minimum_quantity: 0,
+  on_promotion: false,
+  unit_price: 0,
+  wholesale_unit_price: 0,
+  wholesale_min_quantity: 0,
+  discount: 0,
+  unit_id: "",
+  product_category_id: "",
+};
 
-    const [formData, setFormData] = useState({
-        codigo_interno: "",
-        nombre: "",
-        descripcion: "",
-        stock: 0,
-        cantidad_minima: 0,
-        en_promocion: false,
-        pre_uni: 0,
-        pre_uni_may: 0,
-        can_min_may: 0,
-        descuento: 0,
-        unit_id: "",
-        product_category_id: ""
-    });
+function Field({ label, htmlFor, className = "", children }) {
+  return (
+    <div className={`flex flex-col gap-1 ${className}`}>
+      <label htmlFor={htmlFor} className="text-xs font-medium text-foreground">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
 
-    const [categories, setCategories] = useState([]);
-    const [units, setUnits] = useState([]);
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [loading, setLoading] = useState(false);
+export default function ProductFormModal({ visible, onHide, product, onSave, onSuccess }) {
+  const { http } = useAuth();
+  const { showToast } = useToast();
 
-    useEffect(() => {
-        if (visible) {
-            loadInitialData();
-            if (product) {
-                setFormData({
-                    codigo_interno: product.codigo_interno || "",
-                    nombre: product.nombre || "",
-                    descripcion: product.descripcion || "",
-                    stock: product.stock || 0,
-                    cantidad_minima: product.cantidad_minima || 0,
-                    en_promocion: product.en_promocion || false,
-                    pre_uni: product.pre_uni || 0,
-                    pre_uni_may: product.pre_uni_may || 0,
-                    can_min_may: product.can_min_may || 0,
-                    descuento: product.descuento || 0,
-                    unit_id: product.unit_id || "",
-                    product_category_id: product.product_category_id || ""
-                });
-            } else {
-                resetForm();
-            }
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [categories, setCategories] = useState([]);
+  const [units, setUnits] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!visible) return;
+    loadInitialData();
+    if (product) {
+      setFormData({
+        internal_code: product.internal_code || "",
+        name: product.name || "",
+        description: product.description || "",
+        stock: product.stock ?? 0,
+        minimum_quantity: product.minimum_quantity ?? 0,
+        on_promotion: product.on_promotion || false,
+        unit_price: product.unit_price ?? 0,
+        wholesale_unit_price: product.wholesale_unit_price ?? 0,
+        wholesale_min_quantity: product.wholesale_min_quantity ?? 0,
+        discount: product.discount ?? 0,
+        unit_id: product.unit_id || "",
+        product_category_id: product.product_category_id || "",
+      });
+    } else {
+      resetForm();
+    }
+  }, [visible, product]);
+
+  const loadInitialData = async () => {
+    try {
+      const categoriesResponse = await http.get("product-categories");
+      setCategories(categoriesResponse.data?.data || []);
+      const unitsResponse = await http.get("units");
+      setUnits(unitsResponse.data?.data || unitsResponse.data || []);
+    } catch (error) {
+      console.error("Error cargando datos iniciales:", error);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData(EMPTY_FORM);
+    setSelectedFile(null);
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleNumberChange = (field, value) => {
+    handleInputChange(field, value === "" ? "" : Number(value));
+  };
+
+  const handleFileSelect = (event) => {
+    setSelectedFile(event.target.files?.[0] || null);
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.internal_code || !formData.name) {
+      showToast("error", "Error", "Código interno y nombre son obligatorios");
+      return;
+    }
+    if (!formData.unit_price || formData.unit_price <= 0) {
+      showToast("error", "Error", "El precio unitario debe ser mayor a 0");
+      return;
+    }
+    if (!formData.wholesale_unit_price || formData.wholesale_unit_price <= 0) {
+      showToast("error", "Error", "El precio por mayor debe ser mayor a 0");
+      return;
+    }
+    if (!formData.wholesale_min_quantity || formData.wholesale_min_quantity <= 0) {
+      showToast("error", "Error", "La cantidad mínima por mayor debe ser mayor a 0");
+      return;
+    }
+    if (!formData.unit_id) {
+      showToast("error", "Error", "Debe seleccionar una unidad");
+      return;
+    }
+    if (!formData.product_category_id) {
+      showToast("error", "Error", "Debe seleccionar una categoría");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const submitData = new FormData();
+      Object.keys(formData).forEach((key) => {
+        let value = formData[key];
+        if (key === "on_promotion") value = value ? "1" : "0";
+        if (value !== null && value !== undefined) {
+          submitData.append(key, value.toString());
         }
-    }, [visible, product]);
+      });
+      if (selectedFile) submitData.append("image", selectedFile);
 
-    const loadInitialData = async () => {
-        try {
-            const categoriesResponse = await http.get("product-categories");
-            setCategories(
-                (categoriesResponse.data.data || []).map(cat => ({
-                    label: cat.nombre,
-                    value: cat.id
-                }))
-            );
-
-            const unitsResponse = await http.get("units");
-            setUnits(
-                (unitsResponse.data || []).map(unit => ({
-                    label: unit.nombre,
-                    value: unit.id
-                }))
-            );
-        } catch (error) {
-            console.error("Error cargando datos iniciales:", error);
-        }
-    };
-    const resetForm = () => {
-        setFormData({
-            codigo_interno: "",
-            nombre: "",
-            descripcion: "",
-            stock: 0,
-            cantidad_minima: 0,
-            en_promocion: false,
-            pre_uni: 0,
-            pre_uni_may: 0,
-            can_min_may: 0,
-            descuento: 0,
-            unit_id: "",
-            product_category_id: ""
+      if (product) {
+        submitData.append("_method", "PUT");
+        await http.post(`products/${product.id}`, submitData, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        setSelectedFile(null);
-    };
+      } else {
+        await http.post("products", submitData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
 
-    const handleInputChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-    };
+      resetForm();
+      (onSave || onSuccess)?.();
+      onHide();
+    } catch (error) {
+      // El interceptor de axios ya muestra el toast de error.
+      console.error("Error guardando producto:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleFileSelect = (event) => {
-        setSelectedFile(event.files[0]);
-    };
+  const footerActions = (
+    <div className="flex justify-end gap-2 w-full">
+      <ActionButton
+        label="Cancelar"
+        icon="pi pi-times"
+        color="secondary"
+        onClick={onHide}
+        disabled={loading}
+      />
+      <ActionButton
+        label={product ? "Actualizar" : "Guardar producto"}
+        icon="pi pi-check"
+        color="success"
+        onClick={handleSubmit}
+        loading={loading}
+        disabled={loading || !formData.internal_code || !formData.name}
+      />
+    </div>
+  );
 
-    const handleSubmit = async () => {
-        if (!formData.codigo_interno || !formData.nombre) {
-            showToast("error", "Error", "Código interno y nombre son obligatorios");
-            return;
-        }
+  return (
+    <CustomModal
+      visible={visible}
+      onHide={onHide}
+      header={product ? "Editar producto" : "Agregar producto"}
+      footerActions={footerActions}
+      className="w-[92vw] md:w-[70vw] lg:w-[56vw]"
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label="Código interno *" htmlFor="internal_code">
+          <Input
+            id="internal_code"
+            value={formData.internal_code}
+            onChange={(e) => handleInputChange("internal_code", e.target.value)}
+            placeholder="Ej: FER-001-A1"
+            className="h-9 bg-card font-spec"
+          />
+        </Field>
 
-        if (!formData.pre_uni || formData.pre_uni <= 0) {
-            showToast("error", "Error", "El precio unitario debe ser mayor a 0");
-            return;
-        }
+        <Field label="Nombre *" htmlFor="name">
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleInputChange("name", e.target.value)}
+            placeholder="Nombre del producto"
+            className="h-9 bg-card"
+          />
+        </Field>
 
-        if (!formData.pre_uni_may || formData.pre_uni_may <= 0) {
-            showToast("error", "Error", "El precio por mayor debe ser mayor a 0");
-            return;
-        }
+        <Field label="Descripción" htmlFor="description" className="sm:col-span-2">
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => handleInputChange("description", e.target.value)}
+            placeholder="Descripción del producto (opcional)"
+            rows={2}
+            className="bg-card"
+          />
+        </Field>
 
-        if (!formData.can_min_may || formData.can_min_may <= 0) {
-            showToast("error", "Error", "La cantidad mínima por mayor debe ser mayor a 0");
-            return;
-        }
+        <Field label="Categoría *" htmlFor="product_category_id">
+          <Select
+            items={categories.map((c) => ({ label: c.name, value: c.id }))}
+            value={formData.product_category_id === "" ? null : formData.product_category_id}
+            onValueChange={(v) => handleInputChange("product_category_id", v)}
+          >
+            <SelectTrigger id="product_category_id">
+              <SelectValue placeholder="Seleccione categoría" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
-        if (!formData.unit_id) {
-            showToast("error", "Error", "Debe seleccionar una unidad");
-            return;
-        }
+        <Field label="Unidad de medida *" htmlFor="unit_id">
+          <Select
+            items={units.map((u) => ({ label: `${u.name} (${u.abbreviation})`, value: u.id }))}
+            value={formData.unit_id === "" ? null : formData.unit_id}
+            onValueChange={(v) => handleInputChange("unit_id", v)}
+          >
+            <SelectTrigger id="unit_id">
+              <SelectValue placeholder="Seleccione unidad" />
+            </SelectTrigger>
+            <SelectContent>
+              {units.map((unit) => (
+                <SelectItem key={unit.id} value={unit.id}>
+                  {unit.name} ({unit.abbreviation})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
-        if (!formData.product_category_id) {
-            showToast("error", "Error", "Debe seleccionar una categoría");
-            return;
-        }
+        <Field label="Stock (solo lectura)" htmlFor="stock">
+          <Input
+            id="stock"
+            type="number"
+            value={product ? formData.stock : 0}
+            disabled
+            className="h-9 bg-muted/40 font-spec disabled:opacity-70 disabled:cursor-not-allowed"
+          />
+          <span className="text-[11px] text-muted-foreground">
+            {product
+              ? "El stock se gestiona desde Inventario → Movimientos (kardex)."
+              : "El producto se crea en 0; carga su stock con un movimiento de Entrada."}
+          </span>
+        </Field>
 
-        setLoading(true);
-        try {
-            const submitData = new FormData();
+        <Field label="Cantidad mínima *" htmlFor="minimum_quantity">
+          <Input
+            id="minimum_quantity"
+            type="number"
+            min={0}
+            step="0.01"
+            value={formData.minimum_quantity}
+            onChange={(e) => handleNumberChange("minimum_quantity", e.target.value)}
+            className="h-9 bg-card font-spec"
+          />
+        </Field>
 
-            Object.keys(formData).forEach(key => {
-                let value = formData[key];
+        <Field label="Precio unitario (S/) *" htmlFor="unit_price">
+          <Input
+            id="unit_price"
+            type="number"
+            min={0}
+            step="0.01"
+            value={formData.unit_price}
+            onChange={(e) => handleNumberChange("unit_price", e.target.value)}
+            className="h-9 bg-card font-spec"
+          />
+        </Field>
 
-                if (key === 'en_promocion') {
-                    value = value ? '1' : '0';
-                }
+        <Field label="Precio por mayor (S/) *" htmlFor="wholesale_unit_price">
+          <Input
+            id="wholesale_unit_price"
+            type="number"
+            min={0}
+            step="0.01"
+            value={formData.wholesale_unit_price}
+            onChange={(e) => handleNumberChange("wholesale_unit_price", e.target.value)}
+            className="h-9 bg-card font-spec"
+          />
+        </Field>
 
-                if (value !== null && value !== undefined) {
-                    submitData.append(key, value.toString());
-                }
-            });
+        <Field label="Cant. mínima mayor *" htmlFor="wholesale_min_quantity">
+          <Input
+            id="wholesale_min_quantity"
+            type="number"
+            min={0}
+            step="0.01"
+            value={formData.wholesale_min_quantity}
+            onChange={(e) => handleNumberChange("wholesale_min_quantity", e.target.value)}
+            className="h-9 bg-card font-spec"
+          />
+        </Field>
 
-            if (selectedFile) {
-                submitData.append("imagen", selectedFile);
-            }
+        <Field label="Descuento (%)" htmlFor="discount">
+          <Input
+            id="discount"
+            type="number"
+            min={0}
+            max={100}
+            step="1"
+            value={formData.discount}
+            onChange={(e) => handleNumberChange("discount", e.target.value)}
+            className="h-9 bg-card font-spec"
+          />
+        </Field>
 
-            let response;
-            if (product) {
-                submitData.append('_method', 'PUT');
-                response = await http.post(`products/${product.id}`, submitData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                showToast("success", "Éxito", "Producto actualizado correctamente");
-            } else {
-                response = await http.post("products", submitData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                showToast("success", "Éxito", "Producto creado correctamente");
-            }
-
-            resetForm();
-            onSuccess?.();
-            onHide();
-        } catch (error) {
-            console.error("Error guardando producto:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-    const footerActions = (
-        <div className="flex justify-content-end gap-2">
-            <ActionButton
-                label="Cancelar"
-                icon="pi pi-times"
-                color="secondary"
-                onClick={onHide}
-                disabled={loading}
+        {/* Imagen */}
+        <Field label="Imagen" htmlFor="image" className="sm:col-span-2">
+          <label
+            htmlFor="image"
+            className="flex items-center gap-3 rounded-lg border border-dashed border-input bg-card px-3 py-2.5 cursor-pointer transition-colors hover:border-ring hover:bg-secondary/40"
+          >
+            <span className="inline-flex size-9 items-center justify-center rounded-lg bg-secondary text-muted-foreground shrink-0">
+              {selectedFile ? <ImageIcon className="size-4" /> : <Upload className="size-4" />}
+            </span>
+            <span className="text-sm text-muted-foreground truncate">
+              {selectedFile ? selectedFile.name : "Seleccionar imagen (JPG, PNG…)"}
+            </span>
+            <input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
             />
-            <ActionButton
-                label={product ? "Actualizar" : "Guardar"}
-                icon="pi pi-check"
-                color="success"
-                onClick={handleSubmit}
-                loading={loading}
-                disabled={loading || !formData.codigo_interno || !formData.nombre}
-            />
-        </div>
-    );
+          </label>
+        </Field>
 
-    return (
-        <CustomModal
-            visible={visible}
-            onHide={onHide}
-            header={product ? "Editar Producto" : "Agregar Producto"}
-            footerActions={footerActions}
-            className="w-11 md:w-8 lg:w-6"
-        >
-            <div className="grid p-fluid">
-                <div className="col-12 md:col-6">
-                    <div className="field">
-                        <label htmlFor="codigo_interno" className="font-medium">Código Interno *</label>
-                        <InputText
-                            id="codigo_interno"
-                            value={formData.codigo_interno}
-                            onChange={(e) => handleInputChange('codigo_interno', e.target.value)}
-                            placeholder="Ej: P001"
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="nombre" className="font-medium">Nombre *</label>
-                        <InputText
-                            id="nombre"
-                            value={formData.nombre}
-                            onChange={(e) => handleInputChange('nombre', e.target.value)}
-                            placeholder="Nombre del producto"
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="descripcion" className="font-medium">Descripción *</label>
-                        <InputText
-                            id="descripcion"
-                            value={formData.descripcion}
-                            onChange={(e) => handleInputChange('descripcion', e.target.value)}
-                            placeholder="Descripción del producto"
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="product_category_id" className="font-medium">Seleccionar Categoría *</label>
-                        <Dropdown
-                            id="product_category_id"
-                            value={formData.product_category_id}
-                            options={categories}
-                            onChange={(e) => handleInputChange('product_category_id', e.value)}
-                            placeholder="Seleccione categoría"
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="unit_id" className="font-medium">Unidad de medida *</label>
-                        <Dropdown
-                            id="unit_id"
-                            value={formData.unit_id}
-                            options={units}
-                            onChange={(e) => handleInputChange('unit_id', e.value)}
-                            placeholder="Seleccione unidad"
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="imagen" className="font-medium">Imagen</label>
-                        <FileUpload
-                            mode="basic"
-                            name="imagen"
-                            accept="image/*"
-                            maxFileSize={5000000}
-                            chooseLabel="Seleccionar imagen"
-                            onSelect={handleFileSelect}
-                            className="w-full"
-                        />
-                    </div>
-                </div>
-
-                <div className="col-12 md:col-6">
-                    <div className="field">
-                        <label htmlFor="stock" className="font-medium">Stock *</label>
-                        <InputNumber
-                            id="stock"
-                            value={formData.stock}
-                            onValueChange={(e) => handleInputChange('stock', e.value)}
-                            mode="decimal"
-                            min={0}
-                            className="w-full"
-                            minFractionDigits={0}
-                            maxFractionDigits={2}
-                            useGrouping={false}
-
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="cantidad_minima" className="font-medium">Cantidad Mínima *</label>
-                        <InputNumber
-                            id="cantidad_minima"
-                            value={formData.cantidad_minima}
-                            onValueChange={(e) => handleInputChange('cantidad_minima', e.value)}
-                            mode="decimal"
-                            min={0}
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="pre_uni" className="font-medium">Precio Unitario *</label>
-                        <InputNumber
-                            id="pre_uni"
-                            value={formData.pre_uni}
-                            onValueChange={(e) => handleInputChange('pre_uni', e.value)}
-                            mode="currency"
-                            currency="PEN"
-                            locale="es-PE"
-                            min={0}
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="pre_uni_may" className="font-medium">Precio por Mayor *</label>
-                        <InputNumber
-                            id="pre_uni_may"
-                            value={formData.pre_uni_may}
-                            onValueChange={(e) => handleInputChange('pre_uni_may', e.value)}
-                            mode="currency"
-                            currency="PEN"
-                            locale="es-PE"
-                            min={0}
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="can_min_may" className="font-medium">Cant. Mínima Mayor *</label>
-                        <InputNumber
-                            id="can_min_may"
-                            value={formData.can_min_may}
-                            onValueChange={(e) => handleInputChange('can_min_may', e.value)}
-                            mode="decimal"
-                            min={0}
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field">
-                        <label htmlFor="descuento" className="font-medium">Descuento (%)</label>
-                        <InputNumber
-                            id="descuento"
-                            value={formData.descuento}
-                            onValueChange={(e) => handleInputChange('descuento', e.value)}
-                            mode="decimal"
-                            min={0}
-                            max={100}
-                            suffix="%"
-                            className="w-full"
-                        />
-                    </div>
-
-                    <div className="field flex align-items-center">
-                        <Checkbox
-                            inputId="en_promocion"
-                            checked={formData.en_promocion}
-                            onChange={(e) => handleInputChange('en_promocion', e.checked)}
-                        />
-                        <label htmlFor="en_promocion" className="ml-2 mt-2 font-medium">
-                            En promoción
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </CustomModal>
-    );
+        {/* En promoción */}
+        <label className="sm:col-span-2 flex items-center gap-2.5 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={formData.on_promotion}
+            onChange={(e) => handleInputChange("on_promotion", e.target.checked)}
+            className="size-4 rounded border border-input accent-primary cursor-pointer"
+          />
+          <span className="text-sm font-medium text-foreground">En promoción</span>
+        </label>
+      </div>
+    </CustomModal>
+  );
 }

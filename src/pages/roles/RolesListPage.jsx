@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import ActionButton from "@/components/common/ActionButton";
-import CompactTable from "@/components/common/CompactTable";
+import { DataTable } from "@/components/ui/data-table";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import Container from "@/components/layout/Container";
 import Header from "@/components/layout/Header";
 import Section from "@/components/layout/Section";
 import CreateRol from "@/components/roles/CreateRol";
 import EditRol from "@/components/roles/EditRol";
 import RoleUsersModal from "@/components/roles/RoleUsersModal";
-import { Column } from "primereact/column";
-import { confirmDialog } from "primereact/confirmdialog";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { useAuth } from "@/services/auth/authContext";
 
 export default function RolesListPage() {
@@ -21,6 +21,7 @@ export default function RolesListPage() {
 
   const [usersVisible, setUsersVisible] = useState(false);
   const [roleForUsers, setRoleForUsers] = useState(null);
+  const [roleToDelete, setRoleToDelete] = useState(null);
 
   const getRoles = async () => {
     try {
@@ -39,54 +40,67 @@ export default function RolesListPage() {
     getRoles();
   }, []);
 
-  const deleteRole = async (id) => {
+  const confirmDelete = async () => {
+    if (!roleToDelete) return;
     try {
-      const { data } = await http.delete(`/roles/${id}`);
-      if (data.success) {
-        getRoles();
-      }
+      const { data } = await http.delete(`/roles/${roleToDelete.id}`);
+      if (data.success) getRoles();
     } catch (error) {
       console.error("Error eliminando rol:", error);
+    } finally {
+      setRoleToDelete(null);
     }
   };
 
-  const confirmDelete = (role) => {
-    confirmDialog({
-      message: `¿Seguro que deseas eliminar el rol "${role.nombre}"?`,
-      header: "Confirmar eliminación",
-      icon: "pi pi-exclamation-triangle",
-      acceptClassName: "p-button-danger",
-      acceptLabel: "Sí, eliminar",
-      rejectLabel: "Cancelar",
-      accept: () => deleteRole(role.id),
-    });
-  };
-
-  const Actions = (rowData) => (
-    <div className="flex justify-content-start gap-2">
-      <ActionButton
-        icon="pi-users"
-        color="success"
-        onClick={() => {
-          setRoleForUsers(rowData);
-          setUsersVisible(true);
-        }}
-      />
-      <ActionButton
-        icon="pi-pencil"
-        color="warning"
-        onClick={() => {
-          setSelectedRole(rowData);
-          setEditVisible(true);
-        }}
-      />
-      <ActionButton
-        icon="pi-trash"
-        color="danger"
-        onClick={() => confirmDelete(rowData)}
-      />
-    </div>
-  );
+  const columns = [
+    {
+      accessorKey: "name",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+      cell: ({ row }) => (
+        <span className="font-medium text-foreground">{row.original.name}</span>
+      ),
+    },
+    {
+      accessorKey: "description",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.description}</span>
+      ),
+    },
+    {
+      id: "acciones",
+      header: () => <span className="sr-only">Acciones</span>,
+      enableSorting: false,
+      cell: ({ row }) => {
+        const rowData = row.original;
+        return (
+          <div className="flex justify-start gap-2">
+            <ActionButton
+              icon="pi-users"
+              color="success"
+              onClick={() => {
+                setRoleForUsers(rowData);
+                setUsersVisible(true);
+              }}
+            />
+            <ActionButton
+              icon="pi-pencil"
+              color="warning"
+              onClick={() => {
+                setSelectedRole(rowData);
+                setEditVisible(true);
+              }}
+            />
+            <ActionButton
+              icon="pi-trash"
+              color="danger"
+              onClick={() => setRoleToDelete(rowData)}
+            />
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <Container>
@@ -94,15 +108,18 @@ export default function RolesListPage() {
         title="Roles"
         subtitle="A continuación, se visualizarán los roles registrados en el sistema."
       />
-      <Section className="flex justify-content-end align-items-center my-3">
+      <Section className="flex justify-end items-center my-3">
         <CreateRol onCreated={getRoles} />
       </Section>
 
-      <CompactTable value={roles} loading={loading}>
-        <Column header="Nombre" field="nombre" />
-        <Column header="Descripción" field="descripcion" />
-        <Column header="Acciones" body={(rowData) => <Actions {...rowData} rowData={rowData} />} />
-      </CompactTable>
+      <DataTable
+        columns={columns}
+        data={roles}
+        loading={loading}
+        onRefresh={getRoles}
+        searchPlaceholder="Buscar rol..."
+        emptyMessage="No hay roles registrados"
+      />
 
       {selectedRole && (
         <EditRol
@@ -120,6 +137,21 @@ export default function RolesListPage() {
           onHide={() => setUsersVisible(false)}
         />
       )}
+
+      <ConfirmDialog
+        open={!!roleToDelete}
+        onOpenChange={(o) => !o && setRoleToDelete(null)}
+        title="Eliminar rol"
+        description={
+          <>
+            ¿Seguro que deseas eliminar el rol{" "}
+            <span className="font-semibold text-foreground">“{roleToDelete?.name}”</span>?
+            Esta acción no se puede deshacer.
+          </>
+        }
+        confirmLabel="Sí, eliminar"
+        onConfirm={confirmDelete}
+      />
     </Container>
   );
 }

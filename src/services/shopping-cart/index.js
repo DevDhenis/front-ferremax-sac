@@ -4,15 +4,17 @@ export const getShoppingCart = async (http) => {
 };
 
 export const addItemToCart = async (http, productId) => {
-  const response = await http.post("shopping-cart/items", {
-    product_id: productId,
-  });
+  const response = await http.post(
+    "shopping-cart/items",
+    { product_id: productId },
+    { skipToast: true } // el componente muestra su propio toast "Carrito"
+  );
   return response.data;
 };
 
-export const updateCartItemQuantity = async (http, itemId, cantidad) => {
+export const updateCartItemQuantity = async (http, itemId, quantity) => {
   const response = await http.put(`shopping-cart/items/${itemId}`, {
-    cantidad,
+    quantity,
   });
   return response.data;
 };

@@ -1,18 +1,18 @@
-import { Card } from "primereact/card";
-import { Skeleton } from "primereact/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProductSkeleton() {
   return (
-    <Card className="shadow-2 border-round-xl overflow-hidden">
-      <div className="flex flex-column gap-3">
-        <Skeleton width="100%" height="200px" />
-        <Skeleton width="80%" height="1.5rem" />
-        <Skeleton width="60%" height="1rem" />
-        <div className="flex justify-content-between align-items-center">
-          <Skeleton width="30%" height="2rem" />
-          <Skeleton width="60%" height="2.5rem" />
+    <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden flex flex-col h-full">
+      <Skeleton className="w-full h-52 rounded-none" />
+      <div className="p-4 flex flex-col gap-2 flex-1">
+        <Skeleton className="w-2/5 h-3" />
+        <Skeleton className="w-4/5 h-5" />
+        <Skeleton className="w-1/3 h-3" />
+        <div className="mt-auto pt-3 flex flex-col gap-2">
+          <Skeleton className="w-1/2 h-8" />
+          <Skeleton className="w-full h-11" />
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

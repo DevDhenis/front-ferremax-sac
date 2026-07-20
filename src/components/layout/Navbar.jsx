@@ -1,60 +1,30 @@
-import { Menubar } from "primereact/menubar";
-import { Menu } from "primereact/menu";
-import { Avatar } from "primereact/avatar";
-import { useRef } from "react";
-import { useAuth } from "@/services/auth/authContext";
-import IconLogo from "/src/assets/icons/icon.svg"
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
-  const menuRef = useRef(null);
-  const { user, accesses, logout } = useAuth();
-
-  const items = accesses.map((acc) => ({
-    label: acc.nombre,
-    icon: acc.icon,
-    url: acc.path,
-  }));
-
-  const profileMenu = [
-    { label: "Perfil", icon: "pi pi-user" },
-    { label: "Configuración", icon: "pi pi-cog" },
-    { separator: true },
-    {
-      label: "Cerrar sesión",
-      icon: "pi pi-sign-out",
-      command: () => logout()
-    },
-  ];
-
-  const start = <img alt="logo" src={IconLogo} height="40" className="mr-2"></img>;
-
-  const end = (
-    <div
-      className="flex align-items-center gap-2 cursor-pointer"
-      onClick={(e) => menuRef.current.toggle(e)}
-    >
-      <Avatar
-        image={user?.person?.imagen || "https://preview.redd.it/3wlrfietzzq31.jpg?width=640&crop=smart&auto=webp&s=fac76e26c430a104b182b73389c5ca0d951d46d8"}
-        shape="circle"
-        size="large"
-      />
-      <div className="flex flex-column leading-tight">
-        <span className="text-sm font-medium">{user?.username || "Usuario"}</span>
-        <span className="text-xs text-gray-500">{user?.role || "Rol"}</span>
-      </div>
-      <i className="pi pi-angle-down text-gray-500 text-xs"></i>
-      <Menu model={profileMenu} popup ref={menuRef} />
-    </div>
-  );
-
   return (
-    <div className="">
-      <Menubar
-        model={items}
-        start={start}
-        end={end}
-        className="border-noround-bottom bg-gray-100 border-1 border-none"
-      />
-    </div>
+    <header className="flex items-center justify-between px-6 h-16 border-b border-border bg-card w-full">
+      {/* Izquierda: disparador del sidebar (móvil) y marca */}
+      <div className="flex items-center gap-4">
+        <SidebarTrigger className="size-9 text-muted-foreground hover:text-foreground md:hidden" />
+        {/* En desktop el sidebar ya muestra la marca; aquí solo aparece en móvil */}
+        <span className="text-sm font-semibold text-foreground md:hidden">
+          FERREMAX S.A.C.
+        </span>
+      </div>
+
+      {/* Derecha: notificaciones (la cuenta y cerrar sesión viven en el sidebar) */}
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative size-9 text-muted-foreground hover:text-foreground rounded-full"
+        >
+          <Bell className="size-5" />
+          <span className="absolute top-1.5 right-1.5 size-2.5 bg-destructive rounded-full ring-2 ring-card" />
+        </Button>
+      </div>
+    </header>
   );
 }

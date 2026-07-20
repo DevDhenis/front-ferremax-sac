@@ -1,7 +1,7 @@
 import Container from "@/components/layout/Container";
+import { Inbox } from "lucide-react";
 import Header from "@/components/layout/Header";
-import { Tag } from "primereact/tag";
-import { Paginator } from "primereact/paginator";
+import Pagination from "@/components/common/Pagination";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/services/auth/authContext";
 import CategorySidebar from "@/components/product/CategorySidebar";
@@ -9,8 +9,9 @@ import ProductSkeleton from "@/components/product/ProductSkeleton";
 import ProductsGrid from "@/components/product/ProductsGrid";
 import ShoppingCart from "@/components/shopping/ShoppingCart";
 import ActionButton from "@/components/common/ActionButton";
-import { useShoppingCart } from "@/hooks/useShoppingCart";
-import { InputText } from "primereact/inputtext";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/context/ToastContext";
+import CustomSearch from "@/components/common/CustomSearch";
 import PromoCarousel from "@/components/catalog/PromoCarousel";
 
 export default function Catalog() {
@@ -23,7 +24,8 @@ export default function Catalog() {
   const [rows, setRows] = useState(12);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { handleAddToCart } = useShoppingCart();
+  const { addToCart: addProductToCart } = useCart();
+  const { showToast } = useToast();
 
   const getProductos = async () => {
     try {
@@ -79,8 +81,8 @@ export default function Catalog() {
       const term = normalize(searchTerm);
 
       list = list.filter((p) => {
-        const nombre = normalize(p.nombre);
-        const descripcion = normalize(p.descripcion || "");
+        const nombre = normalize(p.name);
+        const descripcion = normalize(p.description || "");
         return nombre.includes(term) || descripcion.includes(term);
       });
     }
@@ -110,42 +112,52 @@ export default function Catalog() {
 
   const addToCart = async (producto) => {
     try {
-      await handleAddToCart(producto.id);
+      await addProductToCart(producto.id);
+      showToast("success", "Carrito", `${producto.name} se agregó a tu carrito.`);
     } catch (error) {
-      console.error("Error al agregar producto al carrito:", error);
+      const msg =
+        error?.response?.data?.message ||
+        "No se pudo agregar el producto al carrito.";
+      showToast("error", "Carrito", msg);
     }
   };
 
+  const promociones = productos.filter((p) => p.on_promotion);
+
   return (
     <Container>
-      <div className="flex flex-row justify-content-between">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <Header
           title="Catálogo de Productos"
           subtitle="Explora nuestra amplia selección de productos organizados por categorías"
         />
-
-        <ShoppingCart />
+        <div className="shrink-0 self-end sm:self-center">
+          <ShoppingCart onCheckout={getProductos} />
+        </div>
       </div>
 
-      <PromoCarousel productos={productos.filter(p => p.en_promocion)} />
+      {/* Banner hero de ofertas */}
+      <PromoCarousel productos={promociones} onAddToCart={addToCart} />
 
-      <div className="grid">
-        <div className="col-12 md:col-3 lg:col-3">
-          <CategorySidebar
-            categorias={categorias}
-            categoriaSeleccionada={categoriaSeleccionada}
-            onCategoriaChange={handleCategoriaChange}
-            conteoProductosPorCategoria={conteoProductosPorCategoria}
-          />
-        </div>
+      {/* Categorías: fila de chips a lo ancho */}
+      <div className="mb-6">
+        <CategorySidebar
+          categorias={categorias}
+          categoriaSeleccionada={categoriaSeleccionada}
+          onCategoriaChange={handleCategoriaChange}
+          conteoProductosPorCategoria={conteoProductosPorCategoria}
+        />
+      </div>
 
-        <div className="col-12 md:col-9 lg:col-9">
+      {/* Productos a todo el ancho */}
+      <div className="w-full">
+        <div className="flex-1 w-full min-w-0">
           {loading ? (
-            <div className="grid grid-nogutter gap-4">
+            <div className="grid grid-cols-12 gap-4 lg:gap-5">
               {[...Array(8)].map((_, index) => (
                 <div
                   key={index}
-                  className="col-12 sm:col-6 md:col-4 lg:col-3"
+                  className="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3"
                 >
                   <ProductSkeleton />
                 </div>
@@ -153,30 +165,38 @@ export default function Catalog() {
             </div>
           ) : (
             <>
-              <div className="mb-4 flex align-items-center justify-content-between">
-                <div>
-                  <h3 className="text-xl font-bold m-0">
+              {/* Barra de Título + Buscador + Controles (una sola fila) */}
+              <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-5 pb-4 border-b border-border/40">
+                <div className="shrink-0">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    {categoriaSeleccionada === "todas" ? "Catálogo" : "Categoría"}
+                  </span>
+                  <h2 className="text-2xl font-bold text-foreground tracking-tight m-0 mt-0.5">
                     {categoriaSeleccionada === "todas"
                       ? "Todos los productos"
                       : categorias.find(
                         (c) => c.id.toString() === categoriaSeleccionada
-                      )?.nombre}
-                  </h3>
-                  <p className="text-600 m-0 mt-1">
-                    {productosFiltrados.length} producto
-                    {productosFiltrados.length !== 1 ? "s" : ""} encontrado
-                    {productosFiltrados.length !== 1 ? "s" : ""}
+                      )?.name}
+                  </h2>
+                  <p className="text-xs text-muted-foreground m-0 mt-1">
+                    <span className="font-spec font-semibold text-foreground">{productosFiltrados.length}</span>{" "}
+                    {productosFiltrados.length === 1 ? "producto encontrado" : "productos encontrados"}
                   </p>
                 </div>
 
-                <div className="flex flex-row align-items-center gap-5">
-                  <Tag
-                    value={`Página ${Math.floor(first / rows) + 1} de ${Math.ceil(
-                      productosFiltrados.length / rows
-                    )}`}
-                    severity="info"
-                    className="text-sm font-semibold"
+                <div className="flex items-center gap-3 w-full lg:w-auto">
+                  <CustomSearch
+                    value={searchTerm}
+                    onChange={(val) => {
+                      setSearchTerm(val);
+                      setFirst(0);
+                    }}
+                    placeholder="Buscar productos..."
+                    className="flex-1 lg:w-72"
                   />
+                  <span className="hidden sm:inline-flex font-spec text-xs bg-secondary text-muted-foreground px-2.5 py-1.5 rounded-md border border-border/60 shrink-0">
+                    Pág {Math.floor(first / rows) + 1} / {Math.ceil(productosFiltrados.length / rows) || 1}
+                  </span>
 
                   <ActionButton
                     icon="pi pi-refresh"
@@ -188,53 +208,39 @@ export default function Catalog() {
                 </div>
               </div>
 
-              <div className="flex justify-content-start mb-4">
-                <span className="p-input-icon-left w-20rem">
-                  <i className="pi pi-search" />
-                  <InputText
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setFirst(0);
-                    }}
-                    placeholder="Buscar productos..."
-                    className="w-full"
-                  />
-                </span>
-              </div>
-
               <ProductsGrid
                 productos={productosPaginados}
                 onAddToCart={addToCart}
               />
 
               {productosFiltrados.length > rows && (
-                <div className="mt-5 flex justify-content-center">
-                  <Paginator
+                <div className="mt-8 flex justify-center">
+                  <Pagination
                     first={first}
                     rows={rows}
                     totalRecords={productosFiltrados.length}
                     rowsPerPageOptions={[12, 24, 36]}
                     onPageChange={onPageChange}
-                    template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                   />
                 </div>
               )}
 
               {productosFiltrados.length === 0 && (
-                <div className="text-center py-6">
-                  <i className="pi pi-inbox text-6xl text-400 mb-3"></i>
-                  <h3 className="text-900 font-semibold mb-2">
-                    No hay productos
+                <div className="text-center py-14 bg-card rounded-xl border border-border/80 border-dashed p-6">
+                  <span className="inline-flex size-14 items-center justify-center rounded-full bg-secondary text-muted-foreground mb-4">
+                    <Inbox className="size-6" />
+                  </span>
+                  <h3 className="text-foreground text-base font-bold mb-1">
+                    {searchTerm ? "Sin coincidencias" : "Aún no hay productos aquí"}
                   </h3>
-                  <p className="text-600">
-                    {categoriaSeleccionada === "todas"
-                      ? "No se encontraron productos en el catálogo."
-                      : `No se encontraron productos en la categoría "${categorias.find(
-                        (c) =>
-                          c.id.toString() === categoriaSeleccionada
-                      )?.nombre
-                      }".`}
+                  <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                    {searchTerm
+                      ? `No hay productos que coincidan con "${searchTerm}". Prueba con otro término o revisa otra categoría.`
+                      : categoriaSeleccionada === "todas"
+                        ? "No hay productos disponibles en el catálogo por ahora."
+                        : `No hay productos en la categoría "${categorias.find(
+                          (c) => c.id.toString() === categoriaSeleccionada
+                        )?.name}". Elige otra desde las categorías de arriba.`}
                   </p>
                 </div>
               )}

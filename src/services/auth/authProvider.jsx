@@ -31,7 +31,9 @@ const AuthProvider = ({ children }) => {
 
   http.interceptors.response.use(
     (response) => {
-      if (response.data?.success && response.data?.message) {
+      // `skipToast: true` en la config permite que el componente maneje su
+      // propio toast (evita duplicados).
+      if (!response.config?.skipToast && response.data?.success && response.data?.message) {
         const method = response.config.method?.toUpperCase();
         if (["POST", "PUT", "DELETE"].includes(method)) {
           showSuccess("Éxito", response.data.message);
@@ -40,17 +42,19 @@ const AuthProvider = ({ children }) => {
       return response;
     },
     (error) => {
-      if (error.response?.data) {
-        const { message, errors } = error.response.data;
+      if (!error.config?.skipToast) {
+        if (error.response?.data) {
+          const { message, errors } = error.response.data;
 
-        let detail = "";
-        if (errors && Array.isArray(errors)) {
-          detail = errors.map((e) => e.error).join("\n");
+          let detail = "";
+          if (errors && Array.isArray(errors)) {
+            detail = errors.map((e) => e.error).join("\n");
+          }
+
+          showError(message || "Error en la operación", detail);
+        } else {
+          showError("Error de conexión", "No se pudo conectar con el servidor");
         }
-
-        showError(message || "Error en la operación", detail);
-      } else {
-        showError("Error de conexión", "No se pudo conectar con el servidor");
       }
 
       return Promise.reject(error);
@@ -78,7 +82,10 @@ const AuthProvider = ({ children }) => {
       setAccesses(newUser.accesses || []);
 
       if (newUser.accesses && newUser.accesses.length > 0) {
-        const firstPath = newUser.accesses[0].path || "/";
+        // Land on the dashboard when the user can see it; otherwise keep the
+        // previous behaviour of using their first granted access.
+        const hasDashboard = newUser.accesses.some((a) => a.path === "/dashboard");
+        const firstPath = hasDashboard ? "/dashboard" : newUser.accesses[0].path || "/";
         navigate(firstPath);
       } else {
         navigate("/sin-permisos");
@@ -113,8 +120,14 @@ const AuthProvider = ({ children }) => {
     navigate("/login");
   };
 
+  // Merge fresh user data (e.g. after editing the profile) so the sidebar avatar
+  // and name refresh immediately; the effect above persists it to localStorage.
+  const updateUser = (updatedUser) => {
+    setUser((prev) => ({ ...prev, ...updatedUser }));
+  };
+
   return (
-    <AuthContext.Provider value={{ token, login, logout, http, user, accesses, loading }}>
+    <AuthContext.Provider value={{ token, login, logout, updateUser, http, user, accesses, loading }}>
       {children}
     </AuthContext.Provider>
   );

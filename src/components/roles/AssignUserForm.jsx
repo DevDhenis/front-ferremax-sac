@@ -1,7 +1,13 @@
 import { useState } from "react";
-import { InputText } from "primereact/inputtext";
-import { Button } from "primereact/button";
-import { Dropdown } from "primereact/dropdown";
+import ActionButton from "../common/ActionButton";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { useAuth } from "@/services/auth/authContext";
 
 export default function AssignUserForm({ role, onAssigned, employees }) {
@@ -37,45 +43,58 @@ export default function AssignUserForm({ role, onAssigned, employees }) {
   };
 
   return (
-    <div className="flex flex-column gap-3 p-3 border-round border-1 surface-border">
-      <Dropdown
-        value={employeeId}
-        options={employees}
-        onChange={(e) => setEmployeeId(e.value)}
-        optionLabel="label"
-        optionValue="id"
-        placeholder="Seleccionar trabajador"
-        className="w-full"
-      />
+    <div className="flex flex-col gap-3 p-4 rounded-xl border border-border/80 bg-secondary/30">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Asignar usuario
+        </span>
+        <span className="h-px flex-1 bg-border/60" />
+      </div>
 
-      <InputText
+      <Select
+        items={employees.map((e) => ({ label: e.label, value: e.id }))}
+        value={employeeId}
+        onValueChange={setEmployeeId}
+      >
+        <SelectTrigger className="bg-card">
+          <SelectValue placeholder="Seleccionar trabajador" />
+        </SelectTrigger>
+        <SelectContent>
+          {employees.map((e) => (
+            <SelectItem key={e.id} value={e.id}>
+              {e.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Input
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         placeholder="Nombre de usuario"
-        className="w-full"
+        className="bg-card"
       />
-
-      <InputText
+      <Input
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Correo electrónico"
-        className="w-full"
+        className="bg-card"
       />
-
-      <InputText
+      <Input
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Contraseña"
-        className="w-full"
+        className="bg-card"
       />
 
-      <Button
-        label="Asignar"
+      <ActionButton
+        label="Asignar usuario"
         icon="pi pi-check"
+        color="success"
         loading={loading}
         onClick={handleSubmit}
-        className="w-full"
+        className="w-full justify-center"
       />
     </div>
   );
